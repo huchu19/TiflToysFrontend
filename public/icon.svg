@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">TiflToys</title>
+  <rect width="256" height="256" rx="56" fill="#D48249"/>
+
+  <!-- Dark offset gives the mark the same toy-block depth as the full logo. -->
+  <rect x="52" y="57" width="160" height="50" rx="16" fill="#2D205B"/>
+  <rect x="107" y="91" width="50" height="128" rx="16" fill="#2D205B"/>
+
+  <!-- A single bold T stays recognizable at 16–32 px. -->
+  <rect x="44" y="45" width="160" height="50" rx="16" fill="#9AD8BC"/>
+  <rect x="99" y="79" width="50" height="128" rx="16" fill="#9AD8BC"/>
+
+  <!-- Minimal highlights preserve the playful character without tiny details. -->
+  <path d="M75 59l5 9 9 5-9 5-5 9-5-9-9-5 9-5 5-9Z" fill="#FFF"/>
+  <path d="M129 157l4 7 7 4-7 4-4 7-4-7-7-4 7-4 4-7Z" fill="#FFF"/>
+</svg>

@@ -1,26 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap');
 @import "tailwindcss";
 
+@theme {
+  /* Brand */
+  --color-brand-green: #5AB65C;
+  --color-brand-purple: #6B4FA0;
+  --color-brand-orange: #F5862E;
+  --color-brand-blue: #93B1E0;
+
+  /* Soft section backgrounds */
+  --color-bg-yellow: #FBE9A0;
+  --color-bg-peach: #FDDCB5;
+  --color-bg-orange: #F0A877;
+  --color-bg-mint: #BFE0C2;
+  --color-bg-blue: #CBD9F1;
+  --color-bg-pink: #EFC2CB;
+  --color-bg-cream: #FFF7E6;
+  --color-card-yellow: #F4DE7A;
+
+  --font-fredoka: 'Fredoka', sans-serif;
+  --font-nunito: 'Nunito', sans-serif;
+}
+
+/* Keep legacy CSS variables for any code still referencing them */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-green: #5AB65C;
+  --color-purple: #6B4FA0;
+  --color-orange: #F5862E;
+  --color-yellow-bg: #FFF9C4;
+  --color-peach-bg: #FDDCB5;
+  --color-mint-bg: #C8E6C9;
+  --color-blue-bg: #D0DCF0;
+  --color-pink-bg: #F8D7E3;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-nunito);
+  color: #4a4a4a;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-fredoka);
 }
