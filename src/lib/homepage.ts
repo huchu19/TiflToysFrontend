@@ -17,15 +17,18 @@ export const HOMEPAGE_CONTENT = {
   heroProduct: 'pilgrimhajj-a-sacred-journey-of-faith-fun-reflection-family-board-game',
   diyProduct: 'diy-sadaqah-box-craft-kit-build-decorate-your-own-charity-box',
   blog: 'news',
-  // Free Shipping section image — a dedicated Shop-level file metafield so the
-  // image stays off product pages. Set it in admin (Content → Files, then the
-  // "Homepage trust image" Shop metafield).
+  // Dedicated Shop-level file metafields so these images stay off product pages
+  // and are swappable in admin (Content → Files + the matching Shop metafield).
+  // `heroImage` overrides the hero product image when set; `trustImage` feeds
+  // the Free Shipping section.
+  heroImage: { namespace: 'homepage', key: 'hero_image' },
   trustImage: { namespace: 'homepage', key: 'trust_image' },
 } as const;
 
 export type HomepageContent = {
   featured: ShopifyProductCard[];
-  hero: ShopifyProductDetail | null;
+  /** Hero image — the metafield override if set, else the hero product image. */
+  heroImage: ShopifyImage;
   trustImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
@@ -43,9 +46,14 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, trustImage, diy, articles] = await Promise.all([
+  const [featured, hero, heroOverride, trustImage, diy, articles] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
+    safe(
+      'hero image',
+      () => getShopMetafieldImage(HOMEPAGE_CONTENT.heroImage.namespace, HOMEPAGE_CONTENT.heroImage.key),
+      null,
+    ),
     safe(
       'trust image',
       () => getShopMetafieldImage(HOMEPAGE_CONTENT.trustImage.namespace, HOMEPAGE_CONTENT.trustImage.key),
@@ -54,5 +62,5 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
   ]);
-  return { featured, hero, trustImage, diy, articles };
+  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles };
 }
