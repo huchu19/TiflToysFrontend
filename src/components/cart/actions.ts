@@ -32,25 +32,22 @@ async function writeCartId(cartId: string): Promise<void> {
   });
 }
 
-async function clearCartId(): Promise<void> {
-  const store = await cookies();
-  store.delete(CART_COOKIE);
-}
-
-/** Current cart for the request's cookie, or null. Used to seed the client. */
+/** Current cart for the request's cookie, or null. Used to seed the client.
+ *
+ * IMPORTANT: this is read-only and must NOT mutate cookies. It runs during
+ * RootLayout render (src/app/layout.tsx), and the App Router forbids writing
+ * cookies during render — doing so throws and crashes the whole page into
+ * `global-error`. A stale/completed cart id simply resolves to null here and is
+ * harmless: the next `addToCartAction` creates a fresh cart and overwrites the
+ * cookie (that's where dead ids get swept, in a legal Server Action context). */
 export async function getCurrentCart(): Promise<Cart | null> {
   const cartId = await readCartId();
   if (!cartId) return null;
   try {
-    const cart = await getCart(cartId);
-    if (!cart) {
-      await clearCartId();
-      return null;
-    }
-    return cart;
+    // getCart() returns null for a completed/expired cart — treat as no cart.
+    return await getCart(cartId);
   } catch {
-    // Stale/invalid cart id — drop it and start fresh.
-    await clearCartId();
+    // Transient Shopify error or bad id — fail soft so the layout still renders.
     return null;
   }
 }
