@@ -3,6 +3,7 @@ import {
   getProductByHandle,
   getBlogArticles,
   getShopMetafieldImage,
+  getSaleEndsAt,
   getTestimonials,
   type ShopifyImage,
   type ShopifyProductCard,
@@ -35,6 +36,8 @@ export type HomepageContent = {
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
   testimonials: ShopifyTestimonial[];
+  /** ISO end time for the promo-bar sale, or null when no sale is configured. */
+  saleEndsAt: string | null;
 };
 
 /** Resolve a fetch, logging and falling back instead of breaking the page. */
@@ -49,7 +52,7 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, heroOverride, trustImage, diy, articles, testimonials] = await Promise.all([
+  const [featured, hero, heroOverride, trustImage, diy, articles, testimonials, saleEndsAt] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
     safe(
@@ -65,6 +68,7 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
     safe('testimonials', () => getTestimonials(), []),
+    safe('sale end date', () => getSaleEndsAt(), null),
   ]);
-  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles, testimonials };
+  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles, testimonials, saleEndsAt };
 }

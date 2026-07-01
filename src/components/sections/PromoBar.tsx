@@ -7,31 +7,50 @@ import { DottedBg } from '@/components/ui/DottedBg';
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-// Countdown ticks down from ~1 day 1 hour 1 minute. The initial state matches
-// what the effect first computes, so server and client render identically (no
-// hydration mismatch); the timer then updates on the client only.
-export default function PromoBar() {
-  const [time, setTime] = useState({ days: '01', hours: '01', minutes: '01' });
+type TimeParts = { days: string; hours: string; minutes: string; seconds: string };
+
+/** Break the ms until `deadline` into padded d/h/m/s, or null once it's reached. */
+function remaining(deadline: number): TimeParts | null {
+  const diff = deadline - Date.now();
+  if (diff <= 0) return null;
+  return {
+    days: pad(Math.floor(diff / 86_400_000)),
+    hours: pad(Math.floor((diff % 86_400_000) / 3_600_000)),
+    minutes: pad(Math.floor((diff % 3_600_000) / 60_000)),
+    seconds: pad(Math.floor((diff % 60_000) / 1_000)),
+  };
+}
+
+// Countdown to the `endsAt` sale deadline (a Shop `promo.sale_ends_at` metafield,
+// set in the Shopify admin). Ticks every second on the client. The bar renders
+// nothing when no sale is configured or the deadline has passed. To avoid a
+// hydration mismatch, the time-sensitive digits start as a placeholder and are
+// filled in on mount (client-only), so server and client first paint identically.
+export default function PromoBar({ endsAt }: { endsAt?: string | null }) {
+  const deadline = endsAt ? new Date(endsAt).getTime() : NaN;
+  // undefined = not computed yet (server/first paint) → show placeholder.
+  // null = sale ended → hide. TimeParts = live countdown.
+  const [time, setTime] = useState<TimeParts | null | undefined>(undefined);
 
   useEffect(() => {
-    const deadline = Date.now() + (1 * 86400 + 1 * 3600 + 1 * 60) * 1000;
-    const tick = () => {
-      const diff = Math.max(0, deadline - Date.now());
-      setTime({
-        days: pad(Math.floor(diff / 86_400_000)),
-        hours: pad(Math.floor((diff % 86_400_000) / 3_600_000)),
-        minutes: pad(Math.floor((diff % 3_600_000) / 60_000)),
-      });
-    };
+    if (!Number.isFinite(deadline)) return;
+    const tick = () => setTime(remaining(deadline));
     tick();
-    const id = setInterval(tick, 15_000);
+    const id = setInterval(tick, 1_000);
     return () => clearInterval(id);
-  }, []);
+  }, [deadline]);
 
+  // No sale configured (or an unparseable date) → hide the bar entirely.
+  if (!Number.isFinite(deadline)) return null;
+  // Sale ended (known only after mount, since it's time-based) → hide.
+  if (time === null) return null;
+
+  const t = time ?? { days: '--', hours: '--', minutes: '--', seconds: '--' };
   const units = [
-    { label: 'Days', value: time.days },
-    { label: 'Hours', value: time.hours },
-    { label: 'Minutes', value: time.minutes },
+    { label: 'Days', value: t.days },
+    { label: 'Hours', value: t.hours },
+    { label: 'Minutes', value: t.minutes },
+    { label: 'Seconds', value: t.seconds },
   ];
 
   return (

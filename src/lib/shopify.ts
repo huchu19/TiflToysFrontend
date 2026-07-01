@@ -318,6 +318,22 @@ export async function getShopMetafieldImage(namespace: string, key: string): Pro
   return mapImage(data.shop?.metafield?.reference?.image);
 }
 
+/**
+ * End time of the homepage promo-bar sale, from the Shop-level `promo.sale_ends_at`
+ * date_time metafield. Returns the ISO 8601 string (e.g. `2026-07-15T23:59:59-04:00`)
+ * or null when unset. The PromoBar counts down to this instant and hides itself when
+ * it's null or already past. Change the date in the Shopify admin — no code change.
+ */
+export async function getSaleEndsAt(): Promise<string | null> {
+  const data = await shopifyFetch<any>(
+    `query SaleEndsAt($namespace: String!, $key: String!) {
+      shop { metafield(namespace: $namespace, key: $key) { value } }
+    }`,
+    { namespace: 'promo', key: 'sale_ends_at' }
+  );
+  return data.shop?.metafield?.value ?? null;
+}
+
 /** Format a Shopify money amount as a plain "$0.00" string (design style). */
 export function formatPrice(amount: string): string {
   const value = Number(amount);

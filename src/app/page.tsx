@@ -11,12 +11,12 @@ import { getHomepageContent } from '@/lib/homepage';
 import { formatPrice } from '@/lib/shopify';
 
 export default async function Home() {
-  const { featured, heroImage, trustImage, diy, articles, testimonials } = await getHomepageContent();
+  const { featured, heroImage, trustImage, diy, articles, testimonials, saleEndsAt } = await getHomepageContent();
 
   return (
     <main className="overflow-x-hidden">
       <Hero image={heroImage ?? undefined} />
-      <PromoBar />
+      <PromoBar endsAt={saleEndsAt} />
       <FeaturedCollection products={featured} />
       <TrustShowcase image={trustImage ?? undefined} />
       <SearchBlock />
