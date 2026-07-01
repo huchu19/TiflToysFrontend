@@ -3,10 +3,12 @@ import {
   getProductByHandle,
   getBlogArticles,
   getShopMetafieldImage,
+  getTestimonials,
   type ShopifyImage,
   type ShopifyProductCard,
   type ShopifyProductDetail,
   type ShopifyArticle,
+  type ShopifyTestimonial,
 } from './shopify';
 
 // Which Shopify resources feed each part of the homepage. Editing a product /
@@ -32,6 +34,7 @@ export type HomepageContent = {
   trustImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
+  testimonials: ShopifyTestimonial[];
 };
 
 /** Resolve a fetch, logging and falling back instead of breaking the page. */
@@ -46,7 +49,7 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, heroOverride, trustImage, diy, articles] = await Promise.all([
+  const [featured, hero, heroOverride, trustImage, diy, articles, testimonials] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
     safe(
@@ -61,6 +64,7 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     ),
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
+    safe('testimonials', () => getTestimonials(), []),
   ]);
-  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles };
+  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles, testimonials };
 }

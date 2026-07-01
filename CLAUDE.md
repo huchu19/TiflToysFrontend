@@ -10,6 +10,14 @@ through to the site with no code change.
 
 > See `MILESTONES.md` for the launch checklist and current status.
 
+## Deployment
+- Git repo root is **`tifltoys/`** (not the parent folder). Remote `origin` →
+  **https://github.com/huchu19/TiflToysFrontend**, default branch **`main`**.
+- Hosted on **Vercel**, connected to that GitHub repo: **pushing to `main` auto-deploys** to
+  production (tifltoys.com). No manual deploy step.
+- `.env.local` holds Shopify secrets and is gitignored — never commit it; env vars are set in the
+  Vercel project settings.
+
 ## Stack
 - **Next.js 16** (App Router) — read `node_modules/next/dist/docs/` before writing Next code; this
   version has breaking changes vs. older Next (see `AGENTS.md`).

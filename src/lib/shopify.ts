@@ -254,6 +254,48 @@ export async function getBlogArticles(handle: string, first = 3): Promise<Shopif
   }));
 }
 
+export type ShopifyTestimonial = {
+  quote: string;
+  author: string;
+  role: string;
+};
+
+/**
+ * Homepage reviews, sourced from a Shop-level `list.metaobject_reference`
+ * metafield (`homepage.testimonials`) that points to `testimonial` metaobjects.
+ * Edit the copy, order, or set of reviews in the Shopify admin (Content →
+ * Metaobjects → Testimonial, and the Shop "Homepage Testimonials" metafield) —
+ * no code change needed. List order in admin = display order on the site.
+ */
+export async function getTestimonials(first = 10): Promise<ShopifyTestimonial[]> {
+  const data = await shopifyFetch<any>(
+    `query ShopTestimonials($namespace: String!, $key: String!, $first: Int!) {
+      shop {
+        metafield(namespace: $namespace, key: $key) {
+          references(first: $first) {
+            nodes {
+              ... on Metaobject {
+                quote: field(key: "quote") { value }
+                author: field(key: "author") { value }
+                role: field(key: "role") { value }
+              }
+            }
+          }
+        }
+      }
+    }`,
+    { namespace: 'homepage', key: 'testimonials', first }
+  );
+  const nodes = data.shop?.metafield?.references?.nodes ?? [];
+  return nodes
+    .map((n: any) => ({
+      quote: n.quote?.value ?? '',
+      author: n.author?.value ?? '',
+      role: n.role?.value ?? '',
+    }))
+    .filter((t: ShopifyTestimonial) => t.quote && t.author);
+}
+
 /**
  * Image for a Shop-level `file_reference` metafield (storefront-visible). Used
  * by homepage sections that need a dedicated image not tied to any product — so
