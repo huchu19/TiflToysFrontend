@@ -80,8 +80,8 @@ export default function Footer() {
               <Image src="/logo.svg" alt="TiflToys" width={110} height={50} className="h-11 w-auto" />
             </Link>
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-600">
-              Increase savings up to 20% off your first purchase and keep up with our latest drops, special
-              editions and member-only sales.
+              Meaningful toys for curious minds. Keep up with our latest drops, special editions and
+              new arrivals.
             </p>
             <div className="mt-5 flex items-center gap-3 text-brand-purple">
               <Link href="#" aria-label="Facebook" className="transition-opacity hover:opacity-70">
