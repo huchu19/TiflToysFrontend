@@ -141,6 +141,8 @@ export type ShopifyProductCard = {
   variantId: string | null;
   /** Product-level purchasability — true if any variant is for sale. */
   availableForSale: boolean;
+  /** Tagged `preorder` in Shopify → ships later (see PREORDER_SHIP_LABEL). */
+  preorder: boolean;
 };
 
 export type ShopifyProductDetail = ShopifyProductCard & {
@@ -166,6 +168,11 @@ function mapImage(image: any): ShopifyImage {
   };
 }
 
+/** True when the product carries the `preorder` tag (case-insensitive). */
+function isPreorder(tags: unknown): boolean {
+  return Array.isArray(tags) && tags.some((t) => String(t).toLowerCase() === 'preorder');
+}
+
 function mapProductNode(node: any): ShopifyProductCard {
   return {
     id: node.id,
@@ -176,6 +183,7 @@ function mapProductNode(node: any): ShopifyProductCard {
     image: mapImage(node.featuredImage),
     variantId: node.variants?.edges?.[0]?.node?.id ?? null,
     availableForSale: node.availableForSale ?? true,
+    preorder: isPreorder(node.tags),
   };
 }
 
@@ -184,6 +192,7 @@ const PRODUCT_CARD_FRAGMENT = `
   title
   handle
   availableForSale
+  tags
   priceRange { minVariantPrice { amount currencyCode } }
   featuredImage { url altText width height }
   variants(first: 1) { edges { node { id } } }
@@ -366,6 +375,8 @@ export type ShopifyProductPage = {
   currencyCode: string;
   images: ShopifyImageData[];
   variants: ShopifyVariant[];
+  /** Tagged `preorder` in Shopify → ships later (see PREORDER_SHIP_LABEL). */
+  preorder: boolean;
 };
 
 /** Catalogue sort options exposed in the UI (mapped to Shopify sort keys). */
@@ -487,6 +498,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
         handle
         description
         descriptionHtml
+        tags
         priceRange { minVariantPrice { amount currencyCode } }
         images(first: 8) { edges { node { url altText width height } } }
         variants(first: 50) {
@@ -517,6 +529,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
     images: (node.images?.edges ?? [])
       .map((e: any) => mapImage(e.node))
       .filter((img: ShopifyImage): img is ShopifyImageData => img !== null),
+    preorder: isPreorder(node.tags),
     variants: (node.variants?.edges ?? []).map((e: any) => ({
       id: e.node.id,
       title: e.node.title,

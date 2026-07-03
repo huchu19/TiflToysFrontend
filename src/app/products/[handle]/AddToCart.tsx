@@ -1,11 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { ShoppingBag, Check } from 'lucide-react';
+import { ShoppingBag, Check, Clock } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice, type ShopifyVariant } from '@/lib/shopify';
+import { PREORDER_SHIP_LABEL } from '@/lib/site';
 
-export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) {
+export default function AddToCart({
+  variants,
+  preorder = false,
+}: {
+  variants: ShopifyVariant[];
+  /** Pre-order product — ships later but is always orderable (oversell on). */
+  preorder?: boolean;
+}) {
   const { addItem, openDrawer } = useCart();
   const firstAvailable = variants.find((v) => v.available) ?? variants[0];
   const [selectedId, setSelectedId] = useState(firstAvailable?.id);
@@ -14,6 +22,9 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
 
   const selected = variants.find((v) => v.id === selectedId);
   const multiple = variants.length > 1;
+  // On a pre-order product every variant is orderable regardless of stock, so
+  // treat the selection as purchasable even when Shopify reports 0 on hand.
+  const canBuy = preorder || !!selected?.available;
 
   // "Low stock" only when inventory is tracked (quantityAvailable non-null) and
   // running low. Untracked variants report null and show no count.
@@ -47,7 +58,7 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
               <button
                 key={v.id}
                 type="button"
-                disabled={!v.available}
+                disabled={!preorder && !v.available}
                 onClick={() => {
                   setSelectedId(v.id);
                   setAdded(false);
@@ -59,14 +70,19 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
                 }`}
               >
                 {v.title}
-                {!v.available ? ' — sold out' : ''}
+                {!preorder && !v.available ? ' — sold out' : ''}
               </button>
             ))}
           </div>
         </div>
       )}
 
-      {selected?.available ? (
+      {preorder ? (
+        <p className="mb-3 inline-flex items-center gap-1.5 font-fredoka text-sm font-semibold text-brand-purple">
+          <Clock className="h-4 w-4" />
+          Pre-order — {PREORDER_SHIP_LABEL}
+        </p>
+      ) : selected?.available ? (
         lowStock && (
           <p className="mb-3 font-fredoka text-sm font-semibold text-brand-orange">
             Low stock — only {selected.quantityAvailable} left
@@ -81,19 +97,23 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
       <button
         type="button"
         onClick={handleAdd}
-        disabled={adding || !selected?.available}
+        disabled={adding || !canBuy}
         className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-9 py-4 font-fredoka text-base font-semibold tracking-wide text-white shadow-md transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
-        {added ? <Check className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
-        {!selected?.available
+        {added ? <Check className="h-5 w-5" /> : preorder ? <Clock className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
+        {!canBuy
           ? 'Sold out'
           : adding
             ? 'Adding…'
             : added
               ? 'Added to cart'
-              : selected
-                ? `Add to cart — ${formatPrice(selected.amount)}`
-                : 'Add to cart'}
+              : preorder
+                ? selected
+                  ? `Pre-order — ${formatPrice(selected.amount)}`
+                  : 'Pre-order'
+                : selected
+                  ? `Add to cart — ${formatPrice(selected.amount)}`
+                  : 'Add to cart'}
       </button>
 
       {added && (

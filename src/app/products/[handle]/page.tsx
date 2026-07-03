@@ -60,6 +60,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   // Product structured data for rich results. Offers reflect per-variant price
   // and live availability.
   const anyAvailable = product.variants.some((v) => v.available);
+  const availability = product.preorder
+    ? 'https://schema.org/PreOrder'
+    : anyAvailable
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -73,9 +78,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       priceCurrency: product.currencyCode,
       lowPrice: product.amount,
       offerCount: product.variants.length,
-      availability: anyAvailable
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
+      availability,
     },
   };
 
@@ -117,7 +120,14 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <p className="mt-6 leading-relaxed text-gray-600">{product.description}</p>
           )}
 
-          <AddToCart variants={product.variants} />
+          {product.preorder && (
+            <p className="mt-4 rounded-xl bg-bg-yellow/60 px-4 py-3 text-sm leading-relaxed text-gray-700">
+              This is a <span className="font-semibold text-brand-purple">pre-order</span> item. Order now and
+              we&apos;ll ship it to you in September 2026.
+            </p>
+          )}
+
+          <AddToCart variants={product.variants} preorder={product.preorder} />
         </div>
       </div>
     </main>
