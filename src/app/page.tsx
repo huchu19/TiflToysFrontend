@@ -1,5 +1,4 @@
 import Hero from '@/components/sections/Hero';
-import PromoBar from '@/components/sections/PromoBar';
 import FeaturedCollection from '@/components/sections/FeaturedCollection';
 import TrustShowcase from '@/components/sections/TrustShowcase';
 import SearchBlock from '@/components/sections/SearchBlock';
@@ -11,12 +10,11 @@ import { getHomepageContent } from '@/lib/homepage';
 import { formatPrice } from '@/lib/shopify';
 
 export default async function Home() {
-  const { featured, heroImage, trustImage, diy, articles, testimonials, saleEndsAt } = await getHomepageContent();
+  const { featured, heroImage, trustImage, diy, articles, testimonials } = await getHomepageContent();
 
   return (
     <main className="overflow-x-hidden">
       <Hero image={heroImage ?? undefined} />
-      <PromoBar endsAt={saleEndsAt} />
       <FeaturedCollection products={featured} />
       <TrustShowcase image={trustImage ?? undefined} />
       <SearchBlock />
