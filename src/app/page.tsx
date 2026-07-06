@@ -5,12 +5,11 @@ import SearchBlock from '@/components/sections/SearchBlock';
 import Testimonials from '@/components/sections/Testimonials';
 import DIYHighlight from '@/components/sections/DIYHighlight';
 import Newsletter from '@/components/sections/Newsletter';
-import Insights from '@/components/sections/Insights';
 import { getHomepageContent } from '@/lib/homepage';
 import { formatPrice } from '@/lib/shopify';
 
 export default async function Home() {
-  const { featured, heroImage, trustImage, diy, articles, testimonials } = await getHomepageContent();
+  const { featured, heroImage, trustImage, diy, testimonials } = await getHomepageContent();
 
   return (
     <main className="overflow-x-hidden">
@@ -28,7 +27,9 @@ export default async function Home() {
         href={diy ? `/products/${diy.handle}` : undefined}
       />
       <Newsletter />
-      <Insights articles={articles} />
+      {/* Insights & Inspirations temporarily hidden — restore
+          <Insights articles={articles} /> (components/sections/Insights)
+          when new content is ready. */}
     </main>
   );
 }

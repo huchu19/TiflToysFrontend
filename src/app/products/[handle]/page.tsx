@@ -123,7 +123,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           {product.preorder && (
             <p className="mt-4 rounded-xl bg-bg-yellow/60 px-4 py-3 text-sm leading-relaxed text-gray-700">
               This is a <span className="font-semibold text-brand-purple">pre-order</span> item. Order now and
-              we&apos;ll ship it to you in September 2026.
+              we&apos;ll ship it to you in Fall 2026.
             </p>
           )}
 
