@@ -20,19 +20,16 @@ export const HOMEPAGE_CONTENT = {
   heroProduct: 'pilgrimhajj-a-sacred-journey-of-faith-fun-reflection-family-board-game',
   diyProduct: 'diy-sadaqah-box-craft-kit-build-decorate-your-own-charity-box',
   blog: 'news',
-  // Dedicated Shop-level file metafields so these images stay off product pages
-  // and are swappable in admin (Content → Files + the matching Shop metafield).
-  // `heroImage` overrides the hero product image when set; `trustImage` feeds
-  // the Free Shipping section.
+  // Dedicated Shop-level file metafield so this image stays off product pages
+  // and is swappable in admin (Content → Files + the matching Shop metafield).
+  // Overrides the hero product image when set.
   heroImage: { namespace: 'homepage', key: 'hero_image' },
-  trustImage: { namespace: 'homepage', key: 'trust_image' },
 } as const;
 
 export type HomepageContent = {
   featured: ShopifyProductCard[];
   /** Hero image — the metafield override if set, else the hero product image. */
   heroImage: ShopifyImage;
-  trustImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
   testimonials: ShopifyTestimonial[];
@@ -52,7 +49,7 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, heroOverride, trustImage, diy, articles, testimonials, saleEndsAt] = await Promise.all([
+  const [featured, hero, heroOverride, diy, articles, testimonials, saleEndsAt] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
     safe(
@@ -60,15 +57,10 @@ export async function getHomepageContent(): Promise<HomepageContent> {
       () => getShopMetafieldImage(HOMEPAGE_CONTENT.heroImage.namespace, HOMEPAGE_CONTENT.heroImage.key),
       null,
     ),
-    safe(
-      'trust image',
-      () => getShopMetafieldImage(HOMEPAGE_CONTENT.trustImage.namespace, HOMEPAGE_CONTENT.trustImage.key),
-      null,
-    ),
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
     safe('testimonials', () => getTestimonials(), []),
     safe('sale end date', () => getSaleEndsAt(), null),
   ]);
-  return { featured, heroImage: heroOverride ?? hero?.image ?? null, trustImage, diy, articles, testimonials, saleEndsAt };
+  return { featured, heroImage: heroOverride ?? hero?.image ?? null, diy, articles, testimonials, saleEndsAt };
 }

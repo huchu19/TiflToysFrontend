@@ -10,13 +10,13 @@ import { getHomepageContent } from '@/lib/homepage';
 import { formatPrice } from '@/lib/shopify';
 
 export default async function Home() {
-  const { featured, heroImage, trustImage, diy, testimonials } = await getHomepageContent();
+  const { featured, heroImage, diy, testimonials } = await getHomepageContent();
 
   return (
     <main className="overflow-x-hidden">
       <Hero image={heroImage ?? undefined} />
       <FeaturedCollection products={featured} />
-      <TrustShowcase image={trustImage ?? undefined} />
+      <TrustShowcase />
       <ShippingBar />
       <SearchBlock />
       <Testimonials testimonials={testimonials} />
