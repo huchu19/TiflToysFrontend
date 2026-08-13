@@ -1,9 +1,15 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Truck } from 'lucide-react';
 import { getAllProductCards, getProductPage, formatPrice } from '@/lib/shopify';
-import { SITE_URL, SITE_NAME } from '@/lib/site';
+import {
+  SITE_URL,
+  SITE_NAME,
+  FREE_SHIPPING_THRESHOLD,
+  SHIPPING_FLAT_RATE,
+  SHIPPING_ZONES,
+} from '@/lib/site';
 import { Stars } from '@/components/ui/Stars';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
@@ -128,6 +134,20 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           )}
 
           <AddToCart variants={product.variants} preorder={product.preorder} />
+
+          <div className="mt-6 flex items-start gap-3 border-t border-gray-100 pt-5 text-sm text-gray-600">
+            <Truck className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" aria-hidden />
+            <p className="leading-relaxed">
+              <span className="font-semibold text-brand-purple">
+                Free shipping on orders over ${FREE_SHIPPING_THRESHOLD}
+              </span>{' '}
+              — otherwise a flat ${SHIPPING_FLAT_RATE} anywhere in Canada.{' '}
+              {SHIPPING_ZONES.map((z) => `${z.region}: ${z.estimate}`).join(' · ')}.{' '}
+              <Link href="/refunds" className="font-medium text-brand-purple hover:underline">
+                Shipping policy
+              </Link>
+            </p>
+          </div>
         </div>
       </div>
     </main>

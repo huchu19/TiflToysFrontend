@@ -32,6 +32,8 @@ export type Cart = {
   checkoutUrl: string;
   totalQuantity: number;
   subtotal: string;
+  /** Raw subtotal, for threshold maths (free-shipping progress). */
+  subtotalAmount: number;
   total: string;
   currencyCode: string;
   lines: CartLine[];
@@ -78,6 +80,7 @@ function mapCart(node: any): Cart | null {
     checkoutUrl: node.checkoutUrl,
     totalQuantity: node.totalQuantity ?? 0,
     subtotal: formatPrice(node.cost?.subtotalAmount?.amount ?? '0'),
+    subtotalAmount: Number(node.cost?.subtotalAmount?.amount ?? 0),
     total: formatPrice(node.cost?.totalAmount?.amount ?? '0'),
     currencyCode,
     lines: (node.lines?.edges ?? []).map((e: any): CartLine => {

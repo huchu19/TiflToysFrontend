@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import FreeShippingNote from './FreeShippingNote';
 
 export default function CartView() {
   const { cart, updateItem, removeItem, isPending, error } = useCart();
@@ -126,8 +127,11 @@ export default function CartView() {
           <span className="font-semibold">{cart?.subtotal}</span>
         </div>
         <p className="mt-1 text-xs text-gray-400">
-          Shipping &amp; taxes calculated at checkout · prices in {cart?.currencyCode}
+          Taxes calculated at checkout · prices in {cart?.currencyCode}
         </p>
+        <div className="mt-4">
+          <FreeShippingNote subtotal={cart?.subtotalAmount ?? 0} />
+        </div>
         <a
           href={cart?.checkoutUrl}
           className="mt-5 flex w-full items-center justify-center rounded-full bg-brand-purple px-8 py-4 font-fredoka text-base font-semibold tracking-wide text-white shadow-md transition-transform hover:scale-[1.02]"

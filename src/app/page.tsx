@@ -1,6 +1,7 @@
 import Hero from '@/components/sections/Hero';
 import FeaturedCollection from '@/components/sections/FeaturedCollection';
 import TrustShowcase from '@/components/sections/TrustShowcase';
+import ShippingBar from '@/components/sections/ShippingBar';
 import SearchBlock from '@/components/sections/SearchBlock';
 import Testimonials from '@/components/sections/Testimonials';
 import DIYHighlight from '@/components/sections/DIYHighlight';
@@ -16,6 +17,7 @@ export default async function Home() {
       <Hero image={heroImage ?? undefined} />
       <FeaturedCollection products={featured} />
       <TrustShowcase image={trustImage ?? undefined} />
+      <ShippingBar />
       <SearchBlock />
       <Testimonials testimonials={testimonials} />
       <DIYHighlight

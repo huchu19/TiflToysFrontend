@@ -14,9 +14,20 @@ type MediaProps = {
   /** Responsive `sizes` hint for the optimizer. */
   sizes?: string;
   priority?: boolean;
+  /** Extra classes on the <Image> itself — e.g. `object-bottom` to pick which
+   *  edge survives the object-cover crop. */
+  imageClassName?: string;
 };
 
-export function Media({ image, label, emoji, className = '', sizes = '100vw', priority }: MediaProps) {
+export function Media({
+  image,
+  label,
+  emoji,
+  className = '',
+  sizes = '100vw',
+  priority,
+  imageClassName = '',
+}: MediaProps) {
   if (!image?.src) {
     return <Placeholder className={className} label={label} emoji={emoji} />;
   }
@@ -28,7 +39,7 @@ export function Media({ image, label, emoji, className = '', sizes = '100vw', pr
         fill
         sizes={sizes}
         priority={priority}
-        className="object-cover"
+        className={`object-cover ${imageClassName}`}
       />
     </div>
   );
