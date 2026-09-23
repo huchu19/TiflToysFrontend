@@ -5,8 +5,8 @@ import type { ShopifyProductCard } from '@/lib/shopify';
 // Shown only if the Shopify "featured-collection" can't be loaded.
 const FALLBACK: ProductCardProps[] = [
   { title: 'Colorable Prayer Mat', price: '$17.00', href: '/products', label: 'Colour-in prayer mat', emoji: '🎨', tone: 'bg-bg-mint' },
-  { title: 'PilgrimHajj Board Game', price: '$29.99', href: '/products', label: 'PilgrimHajj family board game', emoji: '🎲', tone: 'bg-bg-pink', preorder: true },
-  { title: 'Kaaba Money Box', price: '$25.00', href: '/products', label: 'Wooden Kaaba money box', emoji: '🕋', tone: 'bg-bg-blue', preorder: true },
+  { title: 'PilgrimHajj Board Game', price: '$29.99', href: '/products', label: 'PilgrimHajj family board game', emoji: '🎲', tone: 'bg-bg-pink' },
+  { title: 'Kaaba Money Box', price: '$25.00', href: '/products', label: 'Wooden Kaaba money box', emoji: '🕋', tone: 'bg-bg-blue' },
 ];
 
 export default function FeaturedCollection({ products = [] }: { products?: ShopifyProductCard[] }) {

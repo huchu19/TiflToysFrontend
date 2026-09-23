@@ -9,15 +9,6 @@ export const SITE_NAME = 'TiflToys';
 export const SITE_DESCRIPTION =
   'Islamic educational toys for Muslim families in Canada — meaningful toys, games, and crafts for curious minds.';
 
-// Pre-order messaging. Every product except prayer mats is a pre-order with
-// Canadian deliveries beginning Fall 2026 — flagged per-product with a
-// `preorder` tag in the Shopify admin (add/remove the tag to change which
-// items are pre-order). Update the ship label here in one place when the
-// window changes.
-export const PREORDER_SHIP_LABEL = 'Ships Fall 2026';
-export const PREORDER_ANNOUNCEMENT =
-  'Colorable Prayer Mats Available Now (limited quantity). Canadian deliveries for remaining catalogue begins Fall 2026, pre-order now';
-
 // Shipping. These MUST stay in sync with the Shopify shipping zones (Settings →
 // Shipping and delivery → General profile), which is what actually charges at
 // checkout: the "Ontario & Quebec" and "Rest of Canada" zones each carry a

@@ -17,9 +17,7 @@ export function toProductCard(p: ShopifyProductCard, i = 0): ProductCardProps {
     label: p.title,
     emoji: EMOJIS[i % EMOJIS.length],
     tone: TONES[i % TONES.length],
-    // Pre-order items stay purchasable, so they never read as "sold out".
-    soldOut: !p.preorder && !p.availableForSale,
-    preorder: p.preorder,
+    soldOut: !p.availableForSale,
   };
 }
 
@@ -35,11 +33,9 @@ export type ProductCardProps = {
   tone: string;
   /** Show a "Sold out" badge and dim the tile when no variant is purchasable. */
   soldOut?: boolean;
-  /** Show a "Pre-order" badge — item ships later but is orderable now. */
-  preorder?: boolean;
 };
 
-export function ProductCard({ title, price, href, image, label, emoji, tone, soldOut, preorder }: ProductCardProps) {
+export function ProductCard({ title, price, href, image, label, emoji, tone, soldOut }: ProductCardProps) {
   return (
     <Link href={href} className="group block">
       <div className={`relative overflow-hidden rounded-3xl ${tone} transition-transform group-hover:scale-[1.02]`}>
@@ -50,11 +46,7 @@ export function ProductCard({ title, price, href, image, label, emoji, tone, sol
           className={`aspect-square w-full ${soldOut ? 'opacity-60' : ''}`}
           sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
         />
-        {preorder ? (
-          <span className="absolute left-3 top-3 rounded-full bg-brand-purple px-3 py-1 font-fredoka text-xs font-semibold tracking-wide text-white">
-            Pre-order
-          </span>
-        ) : soldOut ? (
+        {soldOut ? (
           <span className="absolute left-3 top-3 rounded-full bg-gray-900/80 px-3 py-1 font-fredoka text-xs font-semibold tracking-wide text-white">
             Sold out
           </span>

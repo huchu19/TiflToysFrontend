@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { getCurrentCart } from '@/components/cart/actions';
-import AnnouncementBar from '@/components/layout/AnnouncementBar';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
@@ -45,7 +44,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="en">
       <body>
         <CartProvider initialCart={initialCart}>
-          <AnnouncementBar />
           <Navbar />
           {children}
           <Footer />

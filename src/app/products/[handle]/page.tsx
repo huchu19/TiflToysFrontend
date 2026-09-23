@@ -66,11 +66,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   // Product structured data for rich results. Offers reflect per-variant price
   // and live availability.
   const anyAvailable = product.variants.some((v) => v.available);
-  const availability = product.preorder
-    ? 'https://schema.org/PreOrder'
-    : anyAvailable
-      ? 'https://schema.org/InStock'
-      : 'https://schema.org/OutOfStock';
+  const availability = anyAvailable
+    ? 'https://schema.org/InStock'
+    : 'https://schema.org/OutOfStock';
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -126,14 +124,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <p className="mt-6 leading-relaxed text-gray-600">{product.description}</p>
           )}
 
-          {product.preorder && (
-            <p className="mt-4 rounded-xl bg-bg-yellow/60 px-4 py-3 text-sm leading-relaxed text-gray-700">
-              This is a <span className="font-semibold text-brand-purple">pre-order</span> item. Order now and
-              we&apos;ll ship it to you in Fall 2026.
-            </p>
-          )}
-
-          <AddToCart variants={product.variants} preorder={product.preorder} />
+          <AddToCart variants={product.variants} />
 
           <div className="mt-6 flex items-start gap-3 border-t border-gray-100 pt-5 text-sm text-gray-600">
             <Truck className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" aria-hidden />
