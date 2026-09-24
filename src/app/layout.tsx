@@ -1,10 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
+import { StickerProvider } from '@/context/StickerContext';
 import { getCurrentCart } from '@/components/cart/actions';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
+import { PageTransition } from '@/components/motion/PageTransition';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 
 const DEFAULT_TITLE = `${SITE_NAME} — Meaningful toys for curious minds`;
@@ -43,12 +45,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en">
       <body>
-        <CartProvider initialCart={initialCart}>
-          <Navbar />
-          {children}
-          <Footer />
-          <CartDrawer />
-        </CartProvider>
+        <StickerProvider>
+          <CartProvider initialCart={initialCart}>
+            <Navbar />
+            <PageTransition>{children}</PageTransition>
+            <Footer />
+            <CartDrawer />
+          </CartProvider>
+        </StickerProvider>
       </body>
     </html>
   );

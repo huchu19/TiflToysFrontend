@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { ShoppingBag, Check } from 'lucide-react';
+import confetti from 'canvas-confetti';
+import { motion, useReducedMotion } from 'motion/react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice, type ShopifyVariant } from '@/lib/shopify';
 
 export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) {
   const { addItem, openDrawer } = useCart();
+  const reduceMotion = useReducedMotion();
   const firstAvailable = variants.find((v) => v.available) ?? variants[0];
   const [selectedId, setSelectedId] = useState(firstAvailable?.id);
   const [adding, setAdding] = useState(false);
@@ -25,12 +28,25 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
     selected.quantityAvailable > 0 &&
     selected.quantityAvailable <= LOW_STOCK_THRESHOLD;
 
-  async function handleAdd() {
+  async function handleAdd(e: React.MouseEvent<HTMLButtonElement>) {
     if (!selectedId) return;
     try {
       setAdding(true);
       await addItem(selectedId);
       setAdded(true);
+      if (!reduceMotion) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        confetti({
+          particleCount: 60,
+          spread: 70,
+          startVelocity: 32,
+          origin: {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: (rect.top + rect.height / 2) / window.innerHeight,
+          },
+          colors: ['#6B4FA0', '#F5862E', '#5AB65C', '#93B1E0'],
+        });
+      }
     } catch {
       // Error is surfaced via CartContext/drawer; reset the button state.
     } finally {
@@ -45,9 +61,10 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
           <p className="mb-2 font-fredoka text-sm font-semibold text-gray-700">Options</p>
           <div className="flex flex-wrap gap-2">
             {variants.map((v) => (
-              <button
+              <motion.button
                 key={v.id}
                 type="button"
+                whileTap={reduceMotion ? undefined : { scale: 0.95 }}
                 disabled={!v.available}
                 onClick={() => {
                   setSelectedId(v.id);
@@ -61,7 +78,7 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
               >
                 {v.title}
                 {!v.available ? ' — sold out' : ''}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -79,11 +96,13 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
         </p>
       )}
 
-      <button
+      <motion.button
         type="button"
+        whileHover={reduceMotion || !canBuy ? undefined : { scale: 1.02 }}
+        whileTap={reduceMotion || !canBuy ? undefined : { scale: 0.98 }}
         onClick={handleAdd}
         disabled={adding || !canBuy}
-        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-9 py-4 font-fredoka text-base font-semibold tracking-wide text-white shadow-md transition-transform hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+        className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-9 py-4 font-fredoka text-base font-semibold tracking-wide text-white shadow-md disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
       >
         {added ? <Check className="h-5 w-5" /> : <ShoppingBag className="h-5 w-5" />}
         {!canBuy
@@ -95,7 +114,7 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
               : selected
                 ? `Add to cart — ${formatPrice(selected.amount)}`
                 : 'Add to cart'}
-      </button>
+      </motion.button>
 
       {added && (
         <button

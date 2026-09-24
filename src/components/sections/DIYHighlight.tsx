@@ -2,9 +2,11 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import confetti from 'canvas-confetti';
+import { useReducedMotion } from 'motion/react';
 import { useCart } from '@/context/CartContext';
-import { Stars } from '@/components/ui/Stars';
 import { Media } from '@/components/ui/Media';
+import { Reveal } from '@/components/motion/Reveal';
 import type { ShopifyImage } from '@/lib/shopify';
 
 // Featured product spotlight. Content comes from a Shopify product; when a
@@ -35,13 +37,26 @@ export default function DIYHighlight({
   href = '/products/diy-sadaqah-box-craft-kit-build-decorate-your-own-charity-box',
 }: DIYHighlightProps) {
   const { addItem } = useCart();
+  const reduceMotion = useReducedMotion();
   const [adding, setAdding] = useState(false);
 
-  async function quickBuy() {
+  async function quickBuy(e: React.MouseEvent<HTMLButtonElement>) {
     if (!variantId) return;
     try {
       setAdding(true);
       await addItem(variantId);
+      if (!reduceMotion) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        confetti({
+          particleCount: 50,
+          spread: 65,
+          origin: {
+            x: (rect.left + rect.width / 2) / window.innerWidth,
+            y: (rect.top + rect.height / 2) / window.innerHeight,
+          },
+          colors: ['#6B4FA0', '#F5862E', '#5AB65C', '#93B1E0'],
+        });
+      }
     } finally {
       setAdding(false);
     }
@@ -52,7 +67,10 @@ export default function DIYHighlight({
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-12 lg:px-8">
-      <div className="grid gap-8 rounded-3xl bg-bg-pink p-6 sm:p-10 lg:grid-cols-2 lg:items-center">
+      <Reveal
+        className="grid gap-8 rounded-3xl bg-bg-pink p-6 sm:p-10 lg:grid-cols-2 lg:items-center"
+        style={{ boxShadow: 'var(--shadow-sticker-lg)' }}
+      >
         <Media
           image={image}
           label="Painting the DIY Kaaba money box"
@@ -62,12 +80,7 @@ export default function DIYHighlight({
         />
 
         <div className="text-white">
-          <div className="flex items-center gap-2">
-            <Stars value={4.5} size={18} />
-            <span className="text-sm font-semibold text-white/90">4.5 (120)</span>
-          </div>
-
-          <h2 className="mt-3 font-fredoka text-3xl font-bold">{title}</h2>
+          <h2 className="font-fredoka text-3xl font-bold">{title}</h2>
           <p className="mt-2 font-fredoka text-2xl font-bold">{price}</p>
 
           <p className="mt-4 max-w-md leading-relaxed text-white/90">{description}</p>
@@ -82,7 +95,7 @@ export default function DIYHighlight({
             </Link>
           )}
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

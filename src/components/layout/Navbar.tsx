@@ -1,25 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Search, User, ShoppingBag, Menu, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { Search, User, ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useStickers } from '@/context/StickerContext';
 
 const NAV_LINKS = [
   { label: 'HOME', href: '/' },
   { label: 'ABOUT US', href: '/about' },
   { label: 'PRODUCTS', href: '/products' },
+  { label: 'PLAY', href: '/play' },
   { label: 'CONTACT', href: '/contact' },
 ];
 
 export default function Navbar() {
   const { itemCount, openDrawer } = useCart();
+  const { foundCount, total } = useStickers();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [scrolled, setScrolled] = useState(false);
+
+  // Shrink the header once the page has scrolled past the hero, so more of
+  // the storefront is visible on small screens without hiding nav entirely.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   function submitSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -31,8 +45,12 @@ export default function Navbar() {
   }
 
   return (
-    <header className="w-full bg-white">
-      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5 lg:px-8">
+    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-sm">
+      <nav
+        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-[padding] duration-300 lg:px-8 ${
+          scrolled ? 'py-2.5' : 'py-5'
+        }`}
+      >
         {/* Logo */}
         <Link href="/" className="flex shrink-0 items-center" aria-label="TiflToys home">
           <Image
@@ -41,12 +59,12 @@ export default function Navbar() {
             width={120}
             height={56}
             priority
-            className="h-28 w-auto"
+            className={`w-auto transition-[height] duration-300 ${scrolled ? 'h-16' : 'h-28'}`}
           />
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden items-center gap-9 md:flex">
+        <ul className="hidden items-center gap-8 md:flex">
           {NAV_LINKS.map((link, i) => (
             <li key={link.href}>
               <Link
@@ -63,6 +81,18 @@ export default function Navbar() {
 
         {/* Right-side icon group */}
         <div className="flex items-center gap-5">
+          {/* Sticker-hunt progress — links to the keepsake collection page. */}
+          {total > 0 && (
+            <Link
+              href="/play/stickers"
+              aria-label={`Sticker hunt progress, ${foundCount} of ${total} found`}
+              className="hidden items-center gap-1.5 rounded-full bg-bg-yellow px-3 py-1.5 font-fredoka text-xs font-bold text-brand-orange transition-transform hover:scale-105 sm:flex"
+            >
+              <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+              {foundCount}/{total}
+            </Link>
+          )}
+
           <button
             type="button"
             aria-label="Search"
@@ -92,11 +122,20 @@ export default function Navbar() {
             className="relative text-gray-800 transition-colors hover:text-brand-purple"
           >
             <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
-            {itemCount > 0 && (
-              <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-orange px-1 text-xs font-bold text-white">
-                {itemCount}
-              </span>
-            )}
+            <AnimatePresence>
+              {itemCount > 0 && (
+                <motion.span
+                  key={itemCount}
+                  initial={{ scale: 0.4, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.4, opacity: 0 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                  className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-orange px-1 text-xs font-bold text-white"
+                >
+                  {itemCount}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
 
           {/* Mobile menu toggle */}

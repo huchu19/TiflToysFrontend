@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/layout/PageHeader';
+import { Stagger } from '@/components/motion/Stagger';
 
 export const metadata: Metadata = {
   title: 'Our Sectors',
@@ -19,11 +20,12 @@ export default function SectorsPage() {
       <PageHeader
         title="Our Sectors"
         subtitle="Meaningful toys, made for every kind of curious mind."
+        stickerId="kaaba"
       />
 
-      <div className="mt-12 grid gap-6 sm:grid-cols-3">
+      <Stagger className="mt-12 grid gap-6 sm:grid-cols-3">
         {SECTORS.map((s) => (
-          <div key={s.title} className="rounded-3xl bg-bg-cream p-8 text-center">
+          <div key={s.title} className="rounded-3xl bg-bg-cream p-8 text-center" style={{ boxShadow: 'var(--shadow-sticker-sm)' }}>
             <div className="text-4xl" aria-hidden>
               {s.emoji}
             </div>
@@ -31,7 +33,7 @@ export default function SectorsPage() {
             <p className="mt-2 text-sm leading-relaxed text-gray-600">{s.body}</p>
           </div>
         ))}
-      </div>
+      </Stagger>
 
       <div className="mt-14 text-center">
         <Link

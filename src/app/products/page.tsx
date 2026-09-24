@@ -1,7 +1,10 @@
 import type { Metadata } from 'next';
 import { getAllProductCards, searchProductCards, type ProductSort as Sort } from '@/lib/shopify';
-import { ProductCard, toProductCard } from '@/components/sections/ProductCard';
+import { ProductCard } from '@/components/sections/ProductCard';
+import { toProductCard } from '@/components/sections/toProductCard';
 import { Star, Sparkle } from '@/components/ui/Doodles';
+import { Stagger } from '@/components/motion/Stagger';
+import { StickerSpot } from '@/components/play/StickerSpot';
 import ProductSort from './ProductSort';
 
 export const metadata: Metadata = {
@@ -25,13 +28,14 @@ export default async function ProductsPage({
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-      <div className="text-center">
+      <div className="relative text-center">
         <div className="flex items-center justify-center gap-3">
           <Star className="h-7 w-7 text-brand-orange" />
           <h1 className="font-fredoka text-4xl font-bold text-brand-purple sm:text-5xl">
             {query ? 'Search results' : 'All Products'}
           </h1>
           <Sparkle className="h-7 w-7 text-brand-green" />
+          <StickerSpot id="lantern" className="absolute -right-2 top-0 sm:right-4" />
         </div>
         <p className="mx-auto mt-4 max-w-xl text-gray-600">
           {query
@@ -56,11 +60,11 @@ export default async function ProductsPage({
             : 'No products found.'}
         </p>
       ) : (
-        <div className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        <Stagger className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {products.map((p, i) => (
             <ProductCard key={p.id} {...toProductCard(p, i)} />
           ))}
-        </div>
+        </Stagger>
       )}
     </main>
   );

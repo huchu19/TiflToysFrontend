@@ -1,5 +1,8 @@
 import { Star, Sparkle } from '@/components/ui/Doodles';
-import { ProductCard, toProductCard, type ProductCardProps } from './ProductCard';
+import { Reveal } from '@/components/motion/Reveal';
+import { Stagger } from '@/components/motion/Stagger';
+import { ProductCard } from './ProductCard';
+import { toProductCard, type ProductCardProps } from './toProductCard';
 import type { ShopifyProductCard } from '@/lib/shopify';
 
 // Shown only if the Shopify "featured-collection" can't be loaded.
@@ -14,7 +17,7 @@ export default function FeaturedCollection({ products = [] }: { products?: Shopi
 
   return (
     <section className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
-      <div className="text-center">
+      <Reveal className="text-center">
         <div className="flex items-center justify-center gap-3">
           <Star className="h-7 w-7 text-brand-orange" />
           <h2 className="font-fredoka text-4xl font-bold text-brand-purple sm:text-5xl">
@@ -25,13 +28,13 @@ export default function FeaturedCollection({ products = [] }: { products?: Shopi
         <p className="mx-auto mt-4 max-w-xl text-gray-600">
           Toys that go beyond fun, helping kids discover new knowledge through play.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      <Stagger className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {cards.map((card) => (
           <ProductCard key={card.href + card.title} {...card} />
         ))}
-      </div>
+      </Stagger>
     </section>
   );
 }

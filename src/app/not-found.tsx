@@ -1,19 +1,28 @@
 import Link from 'next/link';
 import { Star, Curl, Arc, Sparkle } from '@/components/ui/Doodles';
+import { Float } from '@/components/motion/Float';
 
 export default function NotFound() {
   return (
     <main className="mx-auto flex max-w-2xl flex-col items-center px-6 py-24 text-center lg:px-8">
       <div className="relative">
-        <Star className="absolute -left-10 -top-4 hidden h-8 w-8 text-bg-yellow sm:block" />
-        <Curl className="absolute -right-12 top-2 hidden h-10 w-10 text-brand-purple sm:block" />
-        <Arc className="absolute -bottom-2 -left-14 hidden h-10 w-10 text-brand-orange sm:block" />
+        <Float range={5} duration={4}>
+          <Star className="absolute -left-10 -top-4 hidden h-8 w-8 text-bg-yellow sm:block" />
+        </Float>
+        <Float range={6} duration={5} delay={0.4}>
+          <Curl className="absolute -right-12 top-2 hidden h-10 w-10 text-brand-purple sm:block" />
+        </Float>
+        <Float range={5} duration={4.5} delay={0.8}>
+          <Arc className="absolute -bottom-2 -left-14 hidden h-10 w-10 text-brand-orange sm:block" />
+        </Float>
         <p className="font-fredoka text-8xl font-bold leading-none text-brand-purple sm:text-9xl">
           4
           <span className="text-brand-green">0</span>
           <span className="text-brand-orange">4</span>
         </p>
-        <Sparkle className="absolute -right-8 -top-6 hidden h-7 w-7 text-brand-green sm:block" />
+        <Float range={5} duration={4.2} delay={0.2}>
+          <Sparkle className="absolute -right-8 -top-6 hidden h-7 w-7 text-brand-green sm:block" />
+        </Float>
       </div>
 
       <div className="mt-8 text-6xl" aria-hidden>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search } from 'lucide-react';
 import { DottedBg } from '@/components/ui/DottedBg';
+import { Reveal } from '@/components/motion/Reveal';
 
 const TAGS = ['Baby Toys', 'Lego', 'Learning Toys'];
 
@@ -18,11 +19,12 @@ export default function SearchBlock() {
 
   return (
     <section className="mx-auto max-w-5xl px-6 py-12 lg:px-8">
-      <div className="relative overflow-hidden rounded-3xl bg-bg-blue px-6 py-14 text-center">
+      <Reveal className="relative overflow-hidden rounded-3xl bg-bg-blue px-6 py-14 text-center">
         <DottedBg color="#B7C8EC" />
 
         <div className="relative">
-          <h2 className="font-fredoka text-3xl font-bold text-white sm:text-4xl">
+          {/* text-on-blue (not white) — white-on-bg-bg-blue was low contrast. */}
+          <h2 className="font-fredoka text-3xl font-bold text-on-blue sm:text-4xl">
             Looking for something special?
           </h2>
 
@@ -51,14 +53,14 @@ export default function SearchBlock() {
                 key={tag}
                 type="button"
                 onClick={() => go(tag)}
-                className="rounded-full border border-white/70 px-4 py-1 text-sm text-white transition-colors hover:bg-white hover:text-brand-blue"
+                className="rounded-full border border-on-blue/40 px-4 py-1 text-sm text-on-blue transition-colors hover:bg-white hover:text-brand-blue"
               >
                 {tag}
               </button>
             ))}
           </div>
         </div>
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, Truck } from 'lucide-react';
+import { ArrowLeft, Truck, Palette } from 'lucide-react';
 import { getAllProductCards, getProductPage, formatPrice } from '@/lib/shopify';
+import { PLAY_CONTENT } from '@/lib/play';
 import {
   SITE_URL,
   SITE_NAME,
@@ -10,7 +11,6 @@ import {
   SHIPPING_FLAT_RATE,
   SHIPPING_ZONES,
 } from '@/lib/site';
-import { Stars } from '@/components/ui/Stars';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
 
@@ -63,6 +63,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
   const product = await getProductPage(handle);
   if (!product) notFound();
 
+  const isMat = product.handle === PLAY_CONTENT.matProductHandle;
+
   // Product structured data for rich results. Offers reflect per-variant price
   // and live availability.
   const anyAvailable = product.variants.some((v) => v.available);
@@ -103,13 +105,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:items-start">
         <ProductGallery images={product.images} title={product.title} />
 
-        <div>
+        <div className="lg:sticky lg:top-28">
           <h1 className="font-fredoka text-4xl font-bold text-brand-purple">{product.title}</h1>
-
-          <div className="mt-3 flex items-center gap-2 text-brand-orange">
-            <Stars value={4.5} size={18} />
-            <span className="text-sm font-medium text-gray-500">4.5 (120)</span>
-          </div>
 
           <p className="mt-4 font-fredoka text-3xl font-bold text-gray-800">
             {formatPrice(product.amount)}
@@ -125,6 +122,16 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           )}
 
           <AddToCart variants={product.variants} />
+
+          {isMat && (
+            <Link
+              href="/play/colouring"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full border-2 border-dashed border-brand-orange px-9 py-3.5 font-fredoka text-sm font-semibold tracking-wide text-brand-orange transition-colors hover:bg-bg-yellow/40 sm:w-auto"
+            >
+              <Palette className="h-4 w-4" />
+              Try colouring this design first
+            </Link>
+          )}
 
           <div className="mt-6 flex items-start gap-3 border-t border-gray-100 pt-5 text-sm text-gray-600">
             <Truck className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" aria-hidden />

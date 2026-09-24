@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { AnimatePresence, motion } from 'motion/react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import FreeShippingNote from './FreeShippingNote';
@@ -80,22 +81,40 @@ export default function CartDrawer() {
               Your cart is empty
             </p>
             <p className="mt-1 text-sm text-gray-500">Let&rsquo;s find something meaningful to play with.</p>
-            <Link
-              href="/products"
-              onClick={closeDrawer}
-              className="mt-6 inline-flex items-center justify-center rounded-full bg-brand-purple px-7 py-3 font-fredoka text-sm font-semibold tracking-wide text-white shadow-md transition-transform hover:scale-[1.03]"
-            >
-              Browse products
-            </Link>
+            <div className="mt-6 flex flex-col gap-2 sm:flex-row">
+              <Link
+                href="/products"
+                onClick={closeDrawer}
+                className="inline-flex items-center justify-center rounded-full bg-brand-purple px-7 py-3 font-fredoka text-sm font-semibold tracking-wide text-white shadow-md transition-transform hover:scale-[1.03]"
+              >
+                Browse products
+              </Link>
+              <Link
+                href="/play"
+                onClick={closeDrawer}
+                className="inline-flex items-center justify-center rounded-full border-2 border-brand-purple px-7 py-2.5 font-fredoka text-sm font-semibold tracking-wide text-brand-purple transition-colors hover:bg-brand-purple hover:text-white"
+              >
+                Go play
+              </Link>
+            </div>
           </div>
         ) : (
           <>
             <ul className="flex-1 divide-y divide-gray-100 overflow-y-auto px-6">
+              <AnimatePresence initial={false}>
               {lines.map((line) => {
                 const cap = line.merchandise.quantityAvailable;
                 const atMax = cap != null && line.quantity >= cap;
                 return (
-                  <li key={line.id} className="flex gap-4 py-5">
+                  <motion.li
+                    key={line.id}
+                    layout
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.25 }}
+                    className="flex gap-4 overflow-hidden py-5"
+                  >
                     <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-bg-cream">
                       {line.merchandise.image ? (
                         <Image
@@ -169,9 +188,10 @@ export default function CartDrawer() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
-                  </li>
+                  </motion.li>
                 );
               })}
+              </AnimatePresence>
             </ul>
 
             <footer className="border-t border-gray-100 px-6 py-5">

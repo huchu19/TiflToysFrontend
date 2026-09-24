@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import PageHeader from '@/components/layout/PageHeader';
+import { Reveal } from '@/components/motion/Reveal';
+import { Stagger } from '@/components/motion/Stagger';
 
 export const metadata: Metadata = {
   title: 'About Us',
@@ -16,9 +18,9 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <main className="mx-auto max-w-5xl px-6 py-16 lg:px-8">
-      <PageHeader title="About TiflToys" subtitle="Meaningful toys for curious minds." />
+      <PageHeader title="About TiflToys" subtitle="Meaningful toys for curious minds." stickerId="crescent" />
 
-      <div className="mt-10 space-y-6 text-lg leading-relaxed text-gray-600">
+      <Reveal className="mt-10 space-y-6 text-lg leading-relaxed text-gray-600">
         <p>
           TiflToys began with a simple idea: that the toys our children play with should help them{' '}
           <span className="font-semibold text-brand-purple">play, imagine, and grow</span> — all at once.
@@ -30,11 +32,11 @@ export default function AboutPage() {
           fun — helping kids discover new knowledge through play, and giving families beautiful tools to learn
           together.
         </p>
-      </div>
+      </Reveal>
 
-      <div className="mt-14 grid gap-6 sm:grid-cols-3">
+      <Stagger className="mt-14 grid gap-6 sm:grid-cols-3">
         {VALUES.map((v) => (
-          <div key={v.title} className="rounded-3xl bg-bg-cream p-8 text-center">
+          <div key={v.title} className="rounded-3xl bg-bg-cream p-8 text-center" style={{ boxShadow: 'var(--shadow-sticker-sm)' }}>
             <div className="text-4xl" aria-hidden>
               {v.emoji}
             </div>
@@ -42,7 +44,7 @@ export default function AboutPage() {
             <p className="mt-2 text-sm leading-relaxed text-gray-600">{v.body}</p>
           </div>
         ))}
-      </div>
+      </Stagger>
 
       <div className="mt-14 text-center">
         <Link

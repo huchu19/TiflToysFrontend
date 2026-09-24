@@ -141,6 +141,10 @@ export type ShopifyProductCard = {
   variantId: string | null;
   /** Product-level purchasability — true if any variant is for sale. */
   availableForSale: boolean;
+  /** True when the product has more than one variant — card-level "quick add"
+   *  is only offered for single-variant products, since a multi-variant
+   *  product (e.g. the 5-way prayer mat) needs the buyer to pick one. */
+  hasMultipleVariants: boolean;
 };
 
 export type ShopifyProductDetail = ShopifyProductCard & {
@@ -176,6 +180,7 @@ function mapProductNode(node: any): ShopifyProductCard {
     image: mapImage(node.featuredImage),
     variantId: node.variants?.edges?.[0]?.node?.id ?? null,
     availableForSale: node.availableForSale ?? true,
+    hasMultipleVariants: (node.variants?.edges?.length ?? 0) > 1,
   };
 }
 
@@ -186,7 +191,7 @@ const PRODUCT_CARD_FRAGMENT = `
   availableForSale
   priceRange { minVariantPrice { amount currencyCode } }
   featuredImage { url altText width height }
-  variants(first: 1) { edges { node { id } } }
+  variants(first: 2) { edges { node { id } } }
 `;
 
 /** Products in a Shopify collection — used for the Featured Collection grid. */
@@ -212,7 +217,7 @@ export async function getProductByHandle(handle: string): Promise<ShopifyProduct
       product(handle: $handle) {
         ${PRODUCT_CARD_FRAGMENT}
         description
-        variants(first: 1) { edges { node { id availableForSale } } }
+        variants(first: 2) { edges { node { id availableForSale } } }
       }
     }`,
     { handle }

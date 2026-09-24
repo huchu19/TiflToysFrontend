@@ -13,12 +13,16 @@ const COLUMNS = [
     ],
   },
   {
-    title: 'All Collection',
+    // Real, always-live destinations — the old version linked to
+    // /collections/{educational,infant,diy,other}, none of which exist in
+    // Shopify (only `frontpage` and `featured-collection` do), so every one
+    // of those links dead-ended on the "coming soon" collection fallback.
+    title: 'Shop & Play',
     links: [
-      { label: 'Educational Toys', href: '/collections/educational' },
-      { label: 'Infant Toys', href: '/collections/infant' },
-      { label: 'DIY Toys', href: '/collections/diy' },
-      { label: 'Other Toys', href: '/collections/other' },
+      { label: 'Featured Collection', href: '/collections/featured-collection' },
+      { label: 'All Products', href: '/products' },
+      { label: 'Colouring Studio', href: '/play/colouring' },
+      { label: 'The Hajj Journey', href: '/play/hajj' },
     ],
   },
   {

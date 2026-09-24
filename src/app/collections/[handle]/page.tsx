@@ -4,7 +4,8 @@ import { notFound } from 'next/navigation';
 import { getCollectionPage, getCollections } from '@/lib/shopify';
 import { CATEGORY_LABELS } from '@/lib/categories';
 import PageHeader from '@/components/layout/PageHeader';
-import { ProductCard, toProductCard } from '@/components/sections/ProductCard';
+import { ProductCard } from '@/components/sections/ProductCard';
+import { toProductCard } from '@/components/sections/toProductCard';
 
 export async function generateStaticParams() {
   try {

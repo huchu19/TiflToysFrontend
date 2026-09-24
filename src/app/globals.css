@@ -18,6 +18,33 @@
   --color-bg-cream: #FFF7E6;
   --color-card-yellow: #F4DE7A;
 
+  /* Ink scale — warm-tinted greys (not neutral) for text hierarchy. */
+  --color-ink-900: #3A2E4D;
+  --color-ink-700: #5B5064;
+  --color-ink-500: #7A7182;
+  --color-ink-400: #9C94A3;
+
+  /* Readable-on-pastel tokens — dark tint of each section colour, used for
+     headings/body text sitting directly on bg-bg-* fills instead of white
+     (white-on-pastel was under 2:1 contrast in a few spots). */
+  --color-on-mint: #1F5B33;
+  --color-on-blue: #2C3E70;
+  --color-on-pink: #7A2E42;
+  --color-on-orange: #7A3B12;
+
+  /* Signature "sticker" depth — a hard offset shadow (no blur) used instead of
+     soft box-shadows, first introduced on the Testimonials cards. */
+  --shadow-sticker: 6px 6px 0 rgba(58, 46, 77, 0.18);
+  --shadow-sticker-sm: 4px 4px 0 rgba(58, 46, 77, 0.16);
+  --shadow-sticker-lg: 8px 8px 0 rgba(58, 46, 77, 0.2);
+
+  /* Motion */
+  --ease-squish: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast: 150ms;
+  --dur-base: 300ms;
+  --dur-slow: 600ms;
+
   --font-fredoka: 'Fredoka', sans-serif;
   --font-nunito: 'Nunito', sans-serif;
 }
@@ -36,9 +63,55 @@
 
 body {
   font-family: var(--font-nunito);
-  color: #4a4a4a;
+  color: var(--color-ink-700);
 }
 
 h1, h2, h3, h4, h5 {
   font-family: var(--font-fredoka);
+}
+
+/* Subtle paper grain so pastel blocks read as a material, not a flat web
+   gradient. Usage: add the `bg-paper` utility class alongside a bg-bg-* fill. */
+.bg-paper {
+  position: relative;
+}
+.bg-paper::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='matrix' values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.03 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Printable colouring page: hide everything except the studio's canvas when
+   printing from /play/colouring (the "print stylesheet" behind its Print
+   button). Usage: wrap the printable element in class="print-target". */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-target,
+  .print-target * {
+    visibility: visible;
+  }
+  .print-target {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: auto;
+    margin: auto;
+  }
+}
+
+/* Respect reduced-motion at the root: kill transforms/transitions globally,
+   individual motion components additionally check this via useReducedMotion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

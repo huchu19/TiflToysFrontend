@@ -1,4 +1,5 @@
 import { Truck, PackageCheck, MapPin } from 'lucide-react';
+import { Stagger } from '@/components/motion/Stagger';
 import { FREE_SHIPPING_THRESHOLD, SHIPPING_FLAT_RATE, SHIPPING_ZONES } from '@/lib/site';
 
 // Free-shipping / flat-rate terms as real text (the TrustShowcase banner above
@@ -28,7 +29,10 @@ const ITEMS = [
 export default function ShippingBar() {
   return (
     <section className="mx-auto max-w-7xl px-6 pt-10 lg:px-8">
-      <div className="grid gap-6 rounded-3xl bg-bg-cream px-8 py-8 sm:grid-cols-3 sm:gap-8">
+      <Stagger
+        className="grid gap-6 rounded-3xl bg-bg-cream px-8 py-8 sm:grid-cols-3 sm:gap-8"
+        step={0.06}
+      >
         {ITEMS.map(({ Icon, title, body, tone }) => (
           <div key={title} className="flex items-start gap-3">
             <Icon className={`mt-0.5 h-6 w-6 shrink-0 ${tone}`} aria-hidden />
@@ -38,7 +42,7 @@ export default function ShippingBar() {
             </div>
           </div>
         ))}
-      </div>
+      </Stagger>
     </section>
   );
 }
