@@ -43,7 +43,7 @@ const PAYMENTS = [
 ];
 
 // Social brand glyphs as inline SVG — this lucide-react version no longer
-// ships brand icons (Facebook / Instagram / X).
+// ships brand icons (Facebook / Instagram).
 function FacebookLogo({ className = '' }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
@@ -58,15 +58,6 @@ function InstagramLogo({ className = '' }: { className?: string }) {
       <rect x="2" y="2" width="20" height="20" rx="5" />
       <circle cx="12" cy="12" r="4" />
       <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-    </svg>
-  );
-}
-
-/** X (formerly Twitter) brand glyph. */
-function XLogo({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden className={className}>
-      <path d="M18.9 2.5h3.3l-7.2 8.2 8.5 11.3h-6.7l-5.2-6.9-6 6.9H1.6l7.7-8.8L1 2.5h6.8l4.7 6.3zm-1.2 17.5h1.8L7.4 4.4H5.5z" />
     </svg>
   );
 }
@@ -88,14 +79,23 @@ export default function Footer() {
               new arrivals.
             </p>
             <div className="mt-5 flex items-center gap-3 text-brand-purple">
-              <Link href="#" aria-label="Facebook" className="transition-opacity hover:opacity-70">
+              <Link
+                href="https://www.facebook.com/profile.php?id=61590778953486"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="transition-opacity hover:opacity-70"
+              >
                 <FacebookLogo className="h-5 w-5" />
               </Link>
-              <Link href="#" aria-label="Instagram" className="transition-opacity hover:opacity-70">
+              <Link
+                href="https://www.instagram.com/tifl_toys"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="transition-opacity hover:opacity-70"
+              >
                 <InstagramLogo className="h-5 w-5" />
-              </Link>
-              <Link href="#" aria-label="X" className="transition-opacity hover:opacity-70">
-                <XLogo className="h-4 w-4" />
               </Link>
             </div>
           </div>
