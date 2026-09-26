@@ -1,4 +1,4 @@
-# TiflToys Storefront
+# TiflToys
 
 The custom storefront for [Tifl Toys](https://tifltoys.com), which sells Islamic educational toys, games and crafts to Muslim families in Canada.
 
