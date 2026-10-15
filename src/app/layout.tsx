@@ -36,6 +36,10 @@ export const metadata: Metadata = {
     title: DEFAULT_TITLE,
     description: SITE_DESCRIPTION,
   },
+  // Meta Business domain verification (needed to run Facebook/Instagram ads).
+  other: {
+    'facebook-domain-verification': 'ifs20qox69k409hk2gxevlmermf6vr',
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

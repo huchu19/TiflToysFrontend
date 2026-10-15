@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ShoppingBag, Check } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
 import { Media } from '@/components/ui/Media';
+import { Stars } from '@/components/ui/Stars';
 import { useCart } from '@/context/CartContext';
 import type { ProductCardProps } from './toProductCard';
 
@@ -24,6 +25,7 @@ export function ProductCard({
   tone,
   soldOut,
   variantId,
+  rating,
 }: ProductCardProps) {
   const { addItem } = useCart();
   const reduceMotion = useReducedMotion();
@@ -85,6 +87,14 @@ export function ProductCard({
           )}
         </div>
         <h3 className="mt-4 font-fredoka text-lg font-semibold text-brand-purple">{title}</h3>
+        {rating && (
+          <p className="mt-1 flex items-center gap-1.5 text-sm text-ink-500">
+            <span className="text-brand-orange">
+              <Stars value={rating.value} size={15} />
+            </span>
+            <span>({rating.count})</span>
+          </p>
+        )}
         <p className="mt-1 inline-block rounded-full bg-bg-cream px-2.5 py-0.5 font-fredoka text-sm font-bold text-brand-purple/90">
           {price}
         </p>

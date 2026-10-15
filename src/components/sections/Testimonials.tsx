@@ -1,9 +1,10 @@
 import { Stars } from '@/components/ui/Stars';
 import { Reveal } from '@/components/motion/Reveal';
 import { Stagger } from '@/components/motion/Stagger';
-import type { ShopifyTestimonial } from '@/lib/shopify';
+import Link from 'next/link';
+import type { HomepageTestimonial } from '@/lib/homepage';
 
-export default function Testimonials({ testimonials }: { testimonials: ShopifyTestimonial[] }) {
+export default function Testimonials({ testimonials }: { testimonials: HomepageTestimonial[] }) {
   if (testimonials.length === 0) return null;
 
   return (
@@ -15,21 +16,31 @@ export default function Testimonials({ testimonials }: { testimonials: ShopifyTe
         </h2>
 
         <Stagger className="mx-auto mt-10 grid max-w-5xl gap-7 sm:grid-cols-2">
-          {testimonials.map(({ quote, author, role }) => (
+          {testimonials.map(({ id, quote, author, role, rating, href }) => (
             <div
-              key={author}
+              key={id}
               className="flex flex-col rounded-2xl bg-card-yellow px-6 py-8 text-center"
               style={{ boxShadow: 'var(--shadow-sticker)' }}
             >
               <div className="flex justify-center text-brand-green">
-                <Stars value={5} size={20} />
+                <Stars value={rating} size={20} />
               </div>
               <p className="mt-5 font-fredoka text-lg font-semibold leading-snug text-brand-green">
                 &ldquo;{quote}&rdquo;
               </p>
               <div className="mt-5 pt-4 border-t border-brand-green/20">
                 <p className="font-fredoka text-base font-bold text-brand-green">{author}</p>
-                {role && <p className="mt-1 font-nunito text-sm text-brand-green/80">{role}</p>}
+                {role &&
+                  (href ? (
+                    <Link
+                      href={href}
+                      className="mt-1 inline-block font-nunito text-sm text-brand-green/80 underline-offset-2 hover:underline"
+                    >
+                      {role}
+                    </Link>
+                  ) : (
+                    <p className="mt-1 font-nunito text-sm text-brand-green/80">{role}</p>
+                  ))}
               </div>
             </div>
           ))}

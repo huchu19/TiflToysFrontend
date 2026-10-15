@@ -52,6 +52,19 @@ token should be exposed to the browser once the cart refactor lands.
 - `SHOPIFY_STORE_DOMAIN` — e.g. `xgmq1a-uw.myshopify.com` (the `.myshopify.com` domain, not the
   custom domain).
 - `SHOPIFY_STOREFRONT_TOKEN` — Storefront API access token.
+- `LOOX_PUBLIC_STORE_ID` — Loox Storefront API store ID (optional; see Reviews below).
+
+## Reviews (Loox)
+Reviews are collected by the **Loox** Shopify app and shown automatically — no per-review admin work.
+- **Stars on product cards** come from Shopify's standard `reviews.rating` / `reviews.rating_count`
+  product metafields (Loox keeps them in sync) via `RATING_FRAGMENT` in `src/lib/shopify.ts`.
+- **Full reviews** (text, photos/videos, merchant replies, per-star breakdown) on
+  `/products/[handle]` and the homepage "happy customers" section come from the **Loox Storefront
+  API** in `src/lib/loox.ts`, server-rendered and ISR-cached (5 min) so they're crawlable and in the
+  product JSON-LD (`aggregateRating` + `review`). The homepage shows Loox "featured" 4–5★ reviews
+  (pin a review in Loox to feature it), falling back to the `testimonial` metaobjects.
+- Loox reads fail soft: without `LOOX_PUBLIC_STORE_ID`, or if Loox errors, the reviews section is
+  hidden and the metafield stars + metaobject testimonials still render.
 
 ## Conventions
 - **Server Components by default**; add `'use client'` only for interactivity (cart UI, forms,

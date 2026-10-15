@@ -145,6 +145,19 @@ export type ShopifyProductCard = {
    *  is only offered for single-variant products, since a multi-variant
    *  product (e.g. the 5-way prayer mat) needs the buyer to pick one. */
   hasMultipleVariants: boolean;
+  /** Review summary, or null when the product has no reviews yet. */
+  rating: ShopifyRating | null;
+};
+
+/**
+ * Average star rating + review count, read from Shopify's standard
+ * `reviews.rating` / `reviews.rating_count` product metafields. Loox keeps
+ * these in sync automatically, so cards get stars without a Loox API call.
+ */
+export type ShopifyRating = {
+  /** Average rating on a 5-point scale, e.g. 4.7. */
+  value: number;
+  count: number;
 };
 
 export type ShopifyProductDetail = ShopifyProductCard & {
@@ -170,6 +183,20 @@ function mapImage(image: any): ShopifyImage {
   };
 }
 
+/** Parse the `reviews.rating` (JSON) + `reviews.rating_count` metafield pair. */
+function mapRating(rating: any, count: any): ShopifyRating | null {
+  try {
+    const parsed = JSON.parse(rating?.value ?? 'null');
+    const value = Number(parsed?.value);
+    const scaleMax = Number(parsed?.scale_max) || 5;
+    const total = Number(count?.value);
+    if (!Number.isFinite(value) || !(total > 0)) return null;
+    return { value: Math.round((value / scaleMax) * 5 * 10) / 10, count: total };
+  } catch {
+    return null;
+  }
+}
+
 function mapProductNode(node: any): ShopifyProductCard {
   return {
     id: node.id,
@@ -181,8 +208,14 @@ function mapProductNode(node: any): ShopifyProductCard {
     variantId: node.variants?.edges?.[0]?.node?.id ?? null,
     availableForSale: node.availableForSale ?? true,
     hasMultipleVariants: (node.variants?.edges?.length ?? 0) > 1,
+    rating: mapRating(node.rating, node.ratingCount),
   };
 }
+
+const RATING_FRAGMENT = `
+  rating: metafield(namespace: "reviews", key: "rating") { value }
+  ratingCount: metafield(namespace: "reviews", key: "rating_count") { value }
+`;
 
 const PRODUCT_CARD_FRAGMENT = `
   id
@@ -192,6 +225,7 @@ const PRODUCT_CARD_FRAGMENT = `
   priceRange { minVariantPrice { amount currencyCode } }
   featuredImage { url altText width height }
   variants(first: 2) { edges { node { id } } }
+  ${RATING_FRAGMENT}
 `;
 
 /** Products in a Shopify collection — used for the Featured Collection grid. */
@@ -371,6 +405,7 @@ export type ShopifyProductPage = {
   currencyCode: string;
   images: ShopifyImageData[];
   variants: ShopifyVariant[];
+  rating: ShopifyRating | null;
 };
 
 /** Catalogue sort options exposed in the UI (mapped to Shopify sort keys). */
@@ -494,6 +529,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
         descriptionHtml
         priceRange { minVariantPrice { amount currencyCode } }
         images(first: 8) { edges { node { url altText width height } } }
+        ${RATING_FRAGMENT}
         variants(first: 50) {
           edges {
             node {
@@ -531,5 +567,6 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
       quantityAvailable: e.node.quantityAvailable ?? null,
       currentlyNotInStock: e.node.currentlyNotInStock ?? false,
     })),
+    rating: mapRating(node.rating, node.ratingCount),
   };
 }

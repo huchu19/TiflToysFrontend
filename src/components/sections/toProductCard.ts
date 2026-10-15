@@ -1,4 +1,4 @@
-import { formatPrice, type ShopifyImage, type ShopifyProductCard } from '@/lib/shopify';
+import { formatPrice, type ShopifyImage, type ShopifyProductCard, type ShopifyRating } from '@/lib/shopify';
 
 // Rotating placeholder visuals (tile colour + emoji) applied by position, used
 // when a product has no image.
@@ -19,6 +19,8 @@ export type ProductCardProps = {
   soldOut?: boolean;
   /** Single-variant products can be quick-added straight from the grid. */
   variantId?: string | null;
+  /** Review stars under the title; omitted when the product has no reviews. */
+  rating?: ShopifyRating | null;
 };
 
 /**
@@ -42,5 +44,6 @@ export function toProductCard(p: ShopifyProductCard, i = 0): ProductCardProps {
     // Quick-add only for single-variant products — a multi-variant product
     // (e.g. the 5-way prayer mat) needs the buyer to pick a design first.
     variantId: p.hasMultipleVariants ? null : p.variantId,
+    rating: p.rating,
   };
 }

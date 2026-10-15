@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Truck, Palette } from 'lucide-react';
 import { getAllProductCards, getProductPage, formatPrice } from '@/lib/shopify';
 import { PLAY_CONTENT } from '@/lib/play';
+import { getProductBottomline, getProductReviews } from '@/lib/loox';
+import ProductReviews, { RatingSummaryLink } from '@/components/reviews/ProductReviews';
 import {
   SITE_URL,
   SITE_NAME,
@@ -65,6 +67,17 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   const isMat = product.handle === PLAY_CONTENT.matProductHandle;
 
+  // Loox reviews (fail soft to null / []). The Shopify `reviews.*` metafields
+  // that Loox syncs are the fallback for the star line when Loox isn't set up.
+  const [bottomline, reviews] = await Promise.all([
+    getProductBottomline(product.id),
+    getProductReviews(product.id),
+  ]);
+  const rating =
+    bottomline && bottomline.totalReviews > 0
+      ? { value: bottomline.averageRating, count: bottomline.totalReviews }
+      : product.rating;
+
   // Product structured data for rich results. Offers reflect per-variant price
   // and live availability.
   const anyAvailable = product.variants.some((v) => v.available);
@@ -86,6 +99,28 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
       offerCount: product.variants.length,
       availability,
     },
+    ...(rating
+      ? {
+          aggregateRating: {
+            '@type': 'AggregateRating',
+            ratingValue: rating.value,
+            reviewCount: rating.count,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }
+      : {}),
+    ...(reviews.length
+      ? {
+          review: reviews.slice(0, 5).map((r) => ({
+            '@type': 'Review',
+            author: { '@type': 'Person', name: r.reviewer },
+            datePublished: r.date.slice(0, 10),
+            reviewBody: r.body,
+            reviewRating: { '@type': 'Rating', ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+          })),
+        }
+      : {}),
   };
 
   return (
@@ -107,6 +142,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
         <div className="lg:sticky lg:top-28">
           <h1 className="font-fredoka text-4xl font-bold text-brand-purple">{product.title}</h1>
+          {rating && <RatingSummaryLink value={rating.value} count={rating.count} />}
 
           <p className="mt-4 font-fredoka text-3xl font-bold text-gray-800">
             {formatPrice(product.amount)}
@@ -148,6 +184,9 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           </div>
         </div>
       </div>
+
+      {/* Only once Loox has answered — never claim "no reviews" on a failed call. */}
+      {bottomline && <ProductReviews bottomline={bottomline} reviews={reviews} />}
     </main>
   );
 }
