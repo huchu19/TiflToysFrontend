@@ -2,7 +2,6 @@ import {
   getCollectionProducts,
   getProductByHandle,
   getBlogArticles,
-  getShopMetafieldImage,
   getSaleEndsAt,
   getTestimonials,
   type ShopifyImage,
@@ -20,10 +19,6 @@ export const HOMEPAGE_CONTENT = {
   heroProduct: 'pilgrimhajj-a-sacred-journey-of-faith-fun-reflection-family-board-game',
   diyProduct: 'diy-sadaqah-box-craft-kit-build-decorate-your-own-charity-box',
   blog: 'news',
-  // Dedicated Shop-level file metafield so this image stays off product pages
-  // and is swappable in admin (Content → Files + the matching Shop metafield).
-  // Overrides the hero product image when set.
-  heroImage: { namespace: 'homepage', key: 'hero_image' },
 } as const;
 
 /** One card in the homepage "happy customers" section. */
@@ -41,7 +36,7 @@ export type HomepageTestimonial = {
 
 export type HomepageContent = {
   featured: ShopifyProductCard[];
-  /** Hero image — the metafield override if set, else the hero product image. */
+  /** Hero image — the hero product's first image (reorder its media in admin to change it). */
   heroImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
@@ -63,14 +58,9 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, heroOverride, diy, articles, reviews, testimonials, saleEndsAt] = await Promise.all([
+  const [featured, hero, diy, articles, reviews, testimonials, saleEndsAt] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
-    safe(
-      'hero image',
-      () => getShopMetafieldImage(HOMEPAGE_CONTENT.heroImage.namespace, HOMEPAGE_CONTENT.heroImage.key),
-      null,
-    ),
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
     safe('Loox reviews', () => getFeaturedReviews(4), []),
@@ -91,5 +81,5 @@ export async function getHomepageContent(): Promise<HomepageContent> {
       }))
     : testimonials.map((t, i) => ({ id: `t${i}`, ...t, rating: 5 }));
 
-  return { featured, heroImage: heroOverride ?? hero?.image ?? null, diy, articles, testimonials: cards, saleEndsAt };
+  return { featured, heroImage: hero?.image ?? null, diy, articles, testimonials: cards, saleEndsAt };
 }

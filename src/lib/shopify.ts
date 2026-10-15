@@ -336,28 +336,6 @@ export async function getTestimonials(first = 10): Promise<ShopifyTestimonial[]>
 }
 
 /**
- * Image for a Shop-level `file_reference` metafield (storefront-visible). Used
- * by homepage sections that need a dedicated image not tied to any product — so
- * the same image never leaks onto product/collection pages. Swap it in the
- * Shopify admin (Content → Files + the Shop metafield) with no code change.
- */
-export async function getShopMetafieldImage(namespace: string, key: string): Promise<ShopifyImage> {
-  const data = await shopifyFetch<any>(
-    `query ShopMetafieldImage($namespace: String!, $key: String!) {
-      shop {
-        metafield(namespace: $namespace, key: $key) {
-          reference {
-            ... on MediaImage { image { url altText width height } }
-          }
-        }
-      }
-    }`,
-    { namespace, key }
-  );
-  return mapImage(data.shop?.metafield?.reference?.image);
-}
-
-/**
  * End time of the homepage promo-bar sale, from the Shop-level `promo.sale_ends_at`
  * date_time metafield. Returns the ISO 8601 string (e.g. `2026-07-15T23:59:59-04:00`)
  * or null when unset. The PromoBar counts down to this instant and hides itself when

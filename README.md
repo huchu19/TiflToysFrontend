@@ -110,7 +110,7 @@ Most content is managed in the Shopify admin. The code only stores the handle or
 | Products, prices, variants, stock | Products | — |
 | Collections | Collections | — |
 | Homepage featured products | The `featured-collection` collection | `src/lib/homepage.ts` |
-| Homepage hero image | Shop metafield `homepage.hero_image` (file). Falls back to the hero product's image. | `src/lib/homepage.ts` |
+| Homepage hero image | The hero product's first image — reorder its media in admin to change it. | `src/lib/homepage.ts` |
 | Homepage DIY highlight | The DIY Sadaqah Box product | `src/lib/homepage.ts` |
 | Testimonials | `testimonial` metaobjects, listed in the Shop metafield `homepage.testimonials`. The list order is the display order. | `src/lib/shopify.ts` |
 | Colouring studio mats | The prayer mat product. Variant titles must match `MAT_DESIGNS`. | `src/lib/play.ts` |
