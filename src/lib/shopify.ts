@@ -336,6 +336,26 @@ export async function getTestimonials(first = 10): Promise<ShopifyTestimonial[]>
 }
 
 /**
+ * Homepage hero image, from the first entry of the "Hero" metaobject (field
+ * `image`). Edit it in Shopify admin → Content → Metaobjects → Hero — no code
+ * change. Returns null when there's no entry, so the caller can fall back.
+ */
+export async function getHeroImage(): Promise<ShopifyImage> {
+  const data = await shopifyFetch<any>(
+    `query HeroImage {
+      metaobjects(type: "hero", first: 1) {
+        nodes {
+          image: field(key: "image") {
+            reference { ... on MediaImage { image { url altText width height } } }
+          }
+        }
+      }
+    }`
+  );
+  return mapImage(data.metaobjects?.nodes?.[0]?.image?.reference?.image);
+}
+
+/**
  * End time of the homepage promo-bar sale, from the Shop-level `promo.sale_ends_at`
  * date_time metafield. Returns the ISO 8601 string (e.g. `2026-07-15T23:59:59-04:00`)
  * or null when unset. The PromoBar counts down to this instant and hides itself when

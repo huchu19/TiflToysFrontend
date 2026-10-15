@@ -2,6 +2,7 @@ import {
   getCollectionProducts,
   getProductByHandle,
   getBlogArticles,
+  getHeroImage,
   getSaleEndsAt,
   getTestimonials,
   type ShopifyImage,
@@ -36,7 +37,7 @@ export type HomepageTestimonial = {
 
 export type HomepageContent = {
   featured: ShopifyProductCard[];
-  /** Hero image — the hero product's first image (reorder its media in admin to change it). */
+  /** Hero image — the "Hero" metaobject's image if set, else the hero product's first image. */
   heroImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
@@ -58,9 +59,10 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
 
 /** Fetch every Shopify-backed piece of the homepage in parallel. */
 export async function getHomepageContent(): Promise<HomepageContent> {
-  const [featured, hero, diy, articles, reviews, testimonials, saleEndsAt] = await Promise.all([
+  const [featured, hero, heroOverride, diy, articles, reviews, testimonials, saleEndsAt] = await Promise.all([
     safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
+    safe('hero image', () => getHeroImage(), null),
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
     safe('Loox reviews', () => getFeaturedReviews(4), []),
@@ -81,5 +83,5 @@ export async function getHomepageContent(): Promise<HomepageContent> {
       }))
     : testimonials.map((t, i) => ({ id: `t${i}`, ...t, rating: 5 }));
 
-  return { featured, heroImage: hero?.image ?? null, diy, articles, testimonials: cards, saleEndsAt };
+  return { featured, heroImage: heroOverride ?? hero?.image ?? null, diy, articles, testimonials: cards, saleEndsAt };
 }
