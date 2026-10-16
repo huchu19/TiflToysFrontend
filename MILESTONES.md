@@ -6,7 +6,7 @@ headless Shopify store. See `CLAUDE.md` for architecture and the full plan for r
 **Status key:** ☐ not started · ◐ in progress · ☑ done
 
 **Scope locked for v1:** guest checkout only (accounts deferred) · single market Canada/CAD ·
-search yes / wishlist hidden · host on Vercel.
+search yes / wishlist hidden · host on Vercel. (Post-launch: US/USD market added — see README → Markets.)
 
 ---
 
@@ -91,5 +91,6 @@ Shopify checkout.
 ## Post-launch backlog (deferred)
 - Customer accounts / login / order history (Shopify Customer Account API)
 - Wishlist (client-side or metafield-backed)
-- Shopify Markets — multi-currency / international pricing (`@inContext`, country selector)
-- Product reviews, related products, advanced filtering/facets
+- ☑ Shopify Markets — Canada (CAD) + United States (USD): `@inContext` pricing, market carts, flag switcher
+- ☑ Product reviews (Judge.me)
+- Related products, advanced filtering/facets
