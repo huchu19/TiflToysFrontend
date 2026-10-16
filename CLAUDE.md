@@ -41,7 +41,11 @@ through to the site with no code change.
   mutations; checkout is the Shopify-hosted `checkoutUrl`. Cart state lives server-side keyed by a
   cart-id cookie (see `src/lib/shopify/cart.ts` + `src/components/cart/`). Do **not** track item
   counts locally — derive them from the fetched cart's `totalQuantity`.
-- **Store facts:** currency **CAD**, market **Canada** only (v1, single market). Catalog mixes
+- **Store facts:** two Shopify markets — **Canada (CAD)**, the home/default market, and **United
+  States (USD)**. The visitor's market comes from `getCountry()` (`src/lib/country-server.ts`:
+  switcher cookie → Vercel geo header → CA; crawlers always CA). Any query returning prices takes a
+  `country` and uses `@inContext(country:)`; carts carry `buyerIdentity.countryCode`. Shipping
+  terms per market live in `SHIPPING` (`src/lib/site.ts`). See README → Markets. Catalog mixes
   tracked-inventory and untracked products, and some products are multi-variant (e.g. 5-variant
   prayer mats). Treat `availableForSale` as the truth for purchasability; only show stock counts
   when `quantityAvailable` is non-null.
@@ -78,7 +82,8 @@ reviews ourselves from its API.
 - **Routes:** `src/app/` — products (`/products`, catalogue supports `?q=` search), product detail
   (`/products/[handle]`), collections (`/collections`, `/collections/[handle]`), plus marketing/legal
   pages. Shared UI in `src/components/{layout,sections,ui}`.
-- **Money:** format with `formatPrice` from `src/lib/shopify.ts`; never hardcode currency symbols.
+- **Money:** format with `formatPrice(amount, currencyCode)` from `src/lib/shopify.ts` (CAD bare,
+  other currencies suffixed, e.g. `$17.99 USD`); never hardcode currency symbols.
 - **Resilience:** keep Shopify reads fail-soft where a missing section shouldn't 500 the page.
 
 ## Verification

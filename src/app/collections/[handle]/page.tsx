@@ -6,6 +6,7 @@ import { CATEGORY_LABELS } from '@/lib/categories';
 import PageHeader from '@/components/layout/PageHeader';
 import { ProductCard } from '@/components/sections/ProductCard';
 import { toProductCard } from '@/components/sections/toProductCard';
+import { getCountry } from '@/lib/country-server';
 
 export async function generateStaticParams() {
   try {
@@ -30,7 +31,7 @@ export async function generateMetadata({
 
 export default async function CollectionPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const collection = await getCollectionPage(handle);
+  const collection = await getCollectionPage(handle, 24, await getCountry());
   const knownLabel = CATEGORY_LABELS[handle];
 
   // Real Shopify collection OR a curated footer category → render; else 404.

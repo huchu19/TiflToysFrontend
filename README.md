@@ -1,6 +1,6 @@
 # TiflToys
 
-The custom storefront for [Tifl Toys](https://tifltoys.com), which sells Islamic educational toys, games and crafts to Muslim families in Canada.
+The custom storefront for [Tifl Toys](https://tifltoys.com), which sells Islamic educational toys, games and crafts to Muslim families in Canada and the US.
 
 It's a **headless Shopify** store. This Next.js app renders the catalogue, collections and cart through the Shopify Storefront API, and payment happens on Shopify-hosted checkout. The Shopify theme/Liquid storefront isn't used. Product, collection and homepage content edited in the Shopify admin appears on the site without a code change.
 
@@ -9,7 +9,8 @@ It's a **headless Shopify** store. This Next.js app renders the catalogue, colle
 - **Catalogue**: product listing with search (`/products?q=`) and sort (`?sort=featured|newest|price-asc|price-desc`), collection pages, and product pages with variant selection and a gallery.
 - **Shopify cart**: the Shopify cart is the source of truth. It's created and updated through Server Actions, identified by an httpOnly cookie, and shown in a slide-out drawer and on `/cart`. The Checkout button goes to Shopify's hosted `checkoutUrl`.
 - **Stock awareness**: Sold-out badges and disabled add-to-cart come from `availableForSale`. "Only N left" messages and quantity caps come from `quantityAvailable` (see [Inventory scope](#inventory-scope)).
-- **Shipping nudges**: a $4.50 flat rate in Canada (free over $40 CAD) and $10 USD to the US (free over $30 USD), with a "you're $X away from free shipping" note in the cart.
+- **Canada and US markets**: visitors see prices, cart and checkout in their own currency (CAD or USD), picked from their location and changeable with the flag switcher in the header (see [Markets](#markets)).
+- **Shipping nudges**: each visitor sees only their market's terms ($4.50 flat in Canada, free over $40 CAD; $10 USD to the US, free over $30 USD), with a "you're $X away from free shipping" note in the cart.
 - **`/play` experiences**: a colouring studio for the real prayer mat designs (with add-to-cart for the matching variant), a scroll-through Hajj journey, and a hidden-sticker hunt across the site that saves progress in `localStorage`.
 - **Forms**: contact and newsletter forms are Server Actions with validation and a honeypot. They're delivered by email through Web3Forms or Resend.
 - **SEO**: `sitemap.xml`, `robots.txt`, Open Graph/Twitter metadata, canonical URLs, JSON-LD `Product` data on product pages, and a web manifest.
@@ -98,7 +99,9 @@ src/
     ├── shopify/cart.ts   Cart queries and mutations
     ├── homepage.ts       Which Shopify handles feed each homepage section
     ├── play.ts           Which Shopify products power /play
-    └── site.ts           Site URL, name, and shipping rules
+    ├── country.ts        The two markets (CA, US): flag, currency, cookie name
+    ├── country-server.ts getCountry(): the visitor's market for this request
+    └── site.ts           Site URL, name, and per-market shipping rules
 ```
 
 ## How Shopify content maps to the site
@@ -117,7 +120,16 @@ Most content is managed in the Shopify admin. The code only stores the handle or
 
 To point a section at a different product or collection, change its handle in the file listed in the last column.
 
-**Shipping rates** are shown on the site from `src/lib/site.ts`, but Shopify's shipping zones decide what's charged at checkout. If you change a rate, update both places.
+**Shipping rates** are shown on the site from `SHIPPING` in `src/lib/site.ts`, but Shopify's shipping zones decide what's charged at checkout. If you change a rate, update both places.
+
+### Markets
+
+The store sells in two Shopify markets: **Canada (CAD)** and **United States (USD)**. US prices come from the United States market in Shopify, not from a conversion in this code.
+
+- **Which market a visitor gets:** their pick from the header switcher (saved in the `tifl_country` cookie), else the country Vercel detects from their IP (`x-vercel-ip-country`), else Canada. Search crawlers always get Canada, so search results show CAD prices.
+- **Prices:** queries that return prices take a `country` and ask Shopify with `@inContext(country: …)`. Pages get the country from `getCountry()` in `src/lib/country-server.ts`.
+- **Cart:** carts are created in the visitor's market. If the market changes (switcher, or a cart from another country), the cart is moved with `cartBuyerIdentityUpdate`, and Shopify re-prices every line.
+- **Testing:** add `?country=US` or `?country=CA` to any URL to pin a market (handled in `src/proxy.ts`). Local dev has no Vercel geolocation, so this or the switcher is how you see the US store.
 
 ### Inventory scope
 
@@ -127,7 +139,7 @@ To point a section at a different product or collection, change its handle in th
 
 - Components are Server Components by default. Add `'use client'` only for interactive UI, and send cart mutations through Server Actions.
 - Reuse the helpers in `src/lib/shopify.ts` (`shopifyFetch`, `PRODUCT_CARD_FRAGMENT`, `mapProductNode`, `formatPrice`) rather than writing new queries from scratch.
-- Format money with `formatPrice`. The store is CAD only, so don't hardcode currency symbols elsewhere.
+- Format money with `formatPrice(amount, currencyCode)`. CAD prints bare (`$25.00`) and USD carries its code (`$17.99 USD`); don't hardcode currency symbols elsewhere.
 - Derive the cart item count from the fetched cart's `totalQuantity`, not from local state.
 - Use the brand tokens from `globals.css`: the `brand-purple`, `brand-orange`, `brand-green` and `brand-blue` colours, the soft `bg-*` section backgrounds, `font-fredoka` for headings and `font-nunito` for body text.
 

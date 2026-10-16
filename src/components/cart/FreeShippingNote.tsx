@@ -4,15 +4,22 @@ import { useEffect, useRef } from 'react';
 import { Truck, PartyPopper } from 'lucide-react';
 import confetti from 'canvas-confetti';
 import { motion, useReducedMotion } from 'motion/react';
-import { FREE_SHIPPING_THRESHOLD, freeShippingProgress } from '@/lib/site';
+import { freeShippingProgress } from '@/lib/site';
+import type { Country } from '@/lib/country';
 
 /**
  * Free-shipping nudge shown above the checkout button in the cart drawer and
- * the full cart. Reads the raw subtotal so the "$X away" maths matches what
- * Shopify checkout actually charges (see SHIPPING_ZONES in lib/site).
+ * the full cart. Reads the raw subtotal and the cart's market so the "$X away"
+ * maths matches what Shopify checkout actually charges (see SHIPPING in lib/site).
  */
-export default function FreeShippingNote({ subtotal }: { subtotal: number }) {
-  const progress = freeShippingProgress(subtotal);
+export default function FreeShippingNote({
+  subtotal,
+  country,
+}: {
+  subtotal: number;
+  country: Country;
+}) {
+  const progress = freeShippingProgress(subtotal, country);
   const reduceMotion = useReducedMotion();
   const wasQualified = useRef(false);
 
@@ -32,7 +39,6 @@ export default function FreeShippingNote({ subtotal }: { subtotal: number }) {
 
   if (!progress) return null;
 
-  const pct = Math.min(100, (subtotal / FREE_SHIPPING_THRESHOLD) * 100);
 
   return (
     <div className={`rounded-2xl px-4 py-3 ${progress.qualified ? 'bg-bg-mint' : 'bg-bg-cream'}`}>
@@ -47,7 +53,7 @@ export default function FreeShippingNote({ subtotal }: { subtotal: number }) {
       <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-white/70">
         <motion.div
           className={`h-full rounded-full ${progress.qualified ? 'bg-brand-green' : 'bg-brand-orange'}`}
-          animate={{ width: `${pct}%` }}
+          animate={{ width: `${progress.progress * 100}%` }}
           initial={false}
           transition={reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 120, damping: 20 }}
         />

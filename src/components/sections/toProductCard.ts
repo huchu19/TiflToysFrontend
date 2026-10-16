@@ -34,7 +34,7 @@ export type ProductCardProps = {
 export function toProductCard(p: ShopifyProductCard, i = 0): ProductCardProps {
   return {
     title: p.title,
-    price: formatPrice(p.amount),
+    price: formatPrice(p.amount, p.currencyCode),
     href: `/products/${p.handle}`,
     image: p.image,
     label: p.title,

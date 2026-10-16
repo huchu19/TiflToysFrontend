@@ -11,6 +11,7 @@ import {
   type ShopifyArticle,
 } from './shopify';
 import { getFeaturedReviews } from './judgeme';
+import type { Country } from './country';
 
 // Which Shopify resources feed each part of the homepage. Editing a product /
 // collection / blog in the Shopify admin updates the site with no code change;
@@ -57,13 +58,14 @@ async function safe<T>(label: string, fn: () => Promise<T>, fallback: T): Promis
   }
 }
 
-/** Fetch every Shopify-backed piece of the homepage in parallel. */
-export async function getHomepageContent(): Promise<HomepageContent> {
+/** Fetch every Shopify-backed piece of the homepage in parallel, priced for
+ *  the visitor's market. */
+export async function getHomepageContent(country: Country): Promise<HomepageContent> {
   const [featured, hero, heroOverride, diy, articles, reviews, testimonials, saleEndsAt] = await Promise.all([
-    safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3), []),
+    safe('featured collection', () => getCollectionProducts(HOMEPAGE_CONTENT.featuredCollection, 3, country), []),
     safe('hero product', () => getProductByHandle(HOMEPAGE_CONTENT.heroProduct), null),
     safe('hero image', () => getHeroImage(), null),
-    safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
+    safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct, country), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
     safe('Judge.me reviews', () => getFeaturedReviews(4), []),
     safe('testimonials', () => getTestimonials(), []),

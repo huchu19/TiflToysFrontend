@@ -10,17 +10,19 @@ import DIYHighlight from '@/components/sections/DIYHighlight';
 import Newsletter from '@/components/sections/Newsletter';
 import { getHomepageContent } from '@/lib/homepage';
 import { formatPrice } from '@/lib/shopify';
+import { getCountry } from '@/lib/country-server';
 
 // Parent-first, then play: trust (shipping) lands right under the hero, the
 // two /play centrepieces get real estate once the buying case is made, and
 // the rest follows the original storefront rhythm.
 export default async function Home() {
-  const { featured, heroImage, diy, testimonials } = await getHomepageContent();
+  const country = await getCountry();
+  const { featured, heroImage, diy, testimonials } = await getHomepageContent(country);
 
   return (
     <main className="overflow-x-hidden">
-      <Hero image={heroImage ?? undefined} />
-      <ShippingBar />
+      <Hero image={heroImage ?? undefined} country={country} />
+      <ShippingBar country={country} />
       <FeaturedCollection products={featured} />
       <HajjTeaser />
       <ColouringTeaser />
@@ -30,7 +32,7 @@ export default async function Home() {
       <DIYHighlight
         image={diy?.image}
         title={diy?.title}
-        price={diy ? formatPrice(diy.amount) : undefined}
+        price={diy ? formatPrice(diy.amount, diy.currencyCode) : undefined}
         description={diy?.description}
         variantId={diy?.variantId}
         href={diy ? `/products/${diy.handle}` : undefined}

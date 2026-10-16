@@ -170,7 +170,7 @@ export function HajjJourney({ product }: { product: ShopifyProductDetail | null 
             className="mt-6 inline-flex items-center justify-center gap-2 rounded-full bg-white px-9 py-4 font-fredoka text-base font-semibold tracking-wide text-brand-purple shadow-md transition-transform hover:scale-[1.03] disabled:opacity-70"
           >
             <ShoppingBag className="h-5 w-5" />
-            {added ? 'Added to cart' : adding ? 'Adding…' : `Add to cart — ${formatPrice(product.amount)}`}
+            {added ? 'Added to cart' : adding ? 'Adding…' : `Add to cart — ${formatPrice(product.amount, product.currencyCode)}`}
           </button>
         ) : (
           <Link

@@ -8,6 +8,8 @@ import { AnimatePresence, motion } from 'motion/react';
 import { Search, User, ShoppingBag, Menu, X, Sparkles } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useStickers } from '@/context/StickerContext';
+import type { Country } from '@/lib/country';
+import CountrySwitcher from './CountrySwitcher';
 
 const NAV_LINKS = [
   { label: 'HOME', href: '/' },
@@ -17,7 +19,7 @@ const NAV_LINKS = [
   { label: 'CONTACT', href: '/contact' },
 ];
 
-export default function Navbar() {
+export default function Navbar({ country }: { country: Country }) {
   const { itemCount, openDrawer } = useCart();
   const { foundCount, total } = useStickers();
   const router = useRouter();
@@ -64,12 +66,12 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop nav links */}
-        <ul className="hidden items-center gap-8 md:flex">
+        <ul className="hidden items-center gap-5 md:flex lg:gap-8">
           {NAV_LINKS.map((link, i) => (
             <li key={link.href}>
               <Link
                 href={link.href}
-                className={`font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
+                className={`whitespace-nowrap font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
                   i === 0 ? 'text-brand-purple' : 'text-gray-700'
                 }`}
               >
@@ -80,7 +82,7 @@ export default function Navbar() {
         </ul>
 
         {/* Right-side icon group */}
-        <div className="flex items-center gap-5">
+        <div className="flex items-center gap-3.5 lg:gap-5">
           {/* Sticker-hunt progress — links to the keepsake collection page. */}
           {total > 0 && (
             <Link
@@ -93,6 +95,8 @@ export default function Navbar() {
             </Link>
           )}
 
+          <CountrySwitcher country={country} />
+
           <button
             type="button"
             aria-label="Search"
@@ -103,13 +107,14 @@ export default function Navbar() {
             <Search className="h-6 w-6" strokeWidth={1.5} />
           </button>
 
-          {/* Accounts are deferred to post-launch — shown as "coming soon". */}
+          {/* Accounts are deferred to post-launch — shown as "coming soon".
+              Hidden at tablet width, where the nav links need the room. */}
           <button
             type="button"
             aria-label="Accounts (coming soon)"
             title="Accounts coming soon"
             disabled
-            className="hidden cursor-not-allowed text-gray-300 sm:block"
+            className="hidden cursor-not-allowed text-gray-300 sm:block md:hidden lg:block"
           >
             <User className="h-6 w-6" strokeWidth={1.5} />
           </button>

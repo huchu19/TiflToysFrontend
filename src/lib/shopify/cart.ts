@@ -5,6 +5,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- GraphQL cart nodes are
    dynamic; typed as `any` at this boundary and normalized into Cart below. */
 import { shopifyFetchInventory, formatPrice, type ShopifyImageData } from '@/lib/shopify';
+import { DEFAULT_COUNTRY, isCountry, type Country } from '@/lib/country';
 
 export type CartLine = {
   id: string;
@@ -36,6 +37,8 @@ export type Cart = {
   subtotalAmount: number;
   total: string;
   currencyCode: string;
+  /** Market the cart is priced in — decides currency and shipping terms. */
+  country: Country;
   lines: CartLine[];
 };
 
@@ -45,6 +48,7 @@ const cartFragment = (inv: boolean) => `
   id
   checkoutUrl
   totalQuantity
+  buyerIdentity { countryCode }
   cost {
     subtotalAmount { amount currencyCode }
     totalAmount { amount currencyCode }
@@ -75,27 +79,29 @@ const cartFragment = (inv: boolean) => `
 function mapCart(node: any): Cart | null {
   if (!node) return null;
   const currencyCode = node.cost?.subtotalAmount?.currencyCode ?? 'CAD';
+  const country = node.buyerIdentity?.countryCode;
   return {
     id: node.id,
     checkoutUrl: node.checkoutUrl,
     totalQuantity: node.totalQuantity ?? 0,
-    subtotal: formatPrice(node.cost?.subtotalAmount?.amount ?? '0'),
+    subtotal: formatPrice(node.cost?.subtotalAmount?.amount ?? '0', currencyCode),
     subtotalAmount: Number(node.cost?.subtotalAmount?.amount ?? 0),
-    total: formatPrice(node.cost?.totalAmount?.amount ?? '0'),
+    total: formatPrice(node.cost?.totalAmount?.amount ?? '0', currencyCode),
     currencyCode,
+    country: isCountry(country) ? country : DEFAULT_COUNTRY,
     lines: (node.lines?.edges ?? []).map((e: any): CartLine => {
       const m = e.node.merchandise ?? {};
       const img = m.image;
       return {
         id: e.node.id,
         quantity: e.node.quantity,
-        lineTotal: formatPrice(e.node.cost?.totalAmount?.amount ?? '0'),
+        lineTotal: formatPrice(e.node.cost?.totalAmount?.amount ?? '0', currencyCode),
         merchandise: {
           variantId: m.id,
           variantTitle: m.title ?? '',
           productTitle: m.product?.title ?? '',
           productHandle: m.product?.handle ?? '',
-          price: formatPrice(m.price?.amount ?? '0'),
+          price: formatPrice(m.price?.amount ?? '0', currencyCode),
           image: img?.url
             ? {
                 src: img.url,
@@ -134,20 +140,21 @@ export async function getCart(cartId: string): Promise<Cart | null> {
   return mapCart(data.cart);
 }
 
-/** Create a cart, optionally seeded with a first line. */
+/** Create a cart in the given market, optionally seeded with a first line. */
 export async function createCart(
-  variantId?: string,
-  quantity = 1,
+  variantId: string | undefined,
+  quantity: number,
+  country: Country,
 ): Promise<Cart> {
   const lines = variantId ? [{ merchandiseId: variantId, quantity }] : [];
   const data = await shopifyFetchInventory<any>(
-    (inv) => `mutation CartCreate($lines: [CartLineInput!]) {
-      cartCreate(input: { lines: $lines }) {
+    (inv) => `mutation CartCreate($lines: [CartLineInput!], $country: CountryCode) {
+      cartCreate(input: { lines: $lines, buyerIdentity: { countryCode: $country } }) {
         cart { ${cartFragment(inv)} }
         userErrors { field message }
       }
     }`,
-    { lines },
+    { lines, country },
     { noStore: true },
   );
   throwUserErrors(data.cartCreate?.userErrors);
@@ -212,5 +219,23 @@ export async function cartLinesRemove(cartId: string, lineId: string): Promise<C
   throwUserErrors(data.cartLinesRemove?.userErrors);
   const cart = mapCart(data.cartLinesRemove?.cart);
   if (!cart) throw new Error('Could not remove item from cart.');
+  return cart;
+}
+
+/** Move a cart to another market; Shopify re-prices every line in its currency. */
+export async function cartCountryUpdate(cartId: string, country: Country): Promise<Cart> {
+  const data = await shopifyFetchInventory<any>(
+    (inv) => `mutation CartBuyerIdentityUpdate($cartId: ID!, $country: CountryCode) {
+      cartBuyerIdentityUpdate(cartId: $cartId, buyerIdentity: { countryCode: $country }) {
+        cart { ${cartFragment(inv)} }
+        userErrors { field message }
+      }
+    }`,
+    { cartId, country },
+    { noStore: true },
+  );
+  throwUserErrors(data.cartBuyerIdentityUpdate?.userErrors);
+  const cart = mapCart(data.cartBuyerIdentityUpdate?.cart);
+  if (!cart) throw new Error('Could not change the cart country.');
   return cart;
 }

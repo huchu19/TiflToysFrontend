@@ -8,6 +8,7 @@ import Footer from '@/components/layout/Footer';
 import CartDrawer from '@/components/cart/CartDrawer';
 import { PageTransition } from '@/components/motion/PageTransition';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
+import { getCountry } from '@/lib/country-server';
 
 const DEFAULT_TITLE = `${SITE_NAME} — Meaningful toys for curious minds`;
 
@@ -43,15 +44,17 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // Seed the client cart from the cart-id cookie so it persists across reloads.
-  const initialCart = await getCurrentCart();
+  // Seed the client cart from the cart-id cookie so it persists across reloads,
+  // priced in the visitor's market.
+  const country = await getCountry();
+  const initialCart = await getCurrentCart(country);
 
   return (
     <html lang="en">
       <body>
         <StickerProvider>
           <CartProvider initialCart={initialCart}>
-            <Navbar />
+            <Navbar country={country} />
             <PageTransition>{children}</PageTransition>
             <Footer />
             <CartDrawer />

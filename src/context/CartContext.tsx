@@ -9,11 +9,14 @@ import {
   useTransition,
   type ReactNode,
 } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Cart } from '@/lib/shopify/cart';
+import type { Country } from '@/lib/country';
 import {
   addToCartAction,
   updateCartLineAction,
   removeCartLineAction,
+  setCountryAction,
 } from '@/components/cart/actions';
 
 interface CartContextType {
@@ -29,6 +32,8 @@ interface CartContextType {
   addItem: (variantId: string, quantity?: number) => Promise<void>;
   updateItem: (lineId: string, quantity: number) => Promise<void>;
   removeItem: (lineId: string) => Promise<void>;
+  /** Switch market: re-prices the cart and refreshes the page's prices. */
+  changeCountry: (country: Country) => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | null>(null);
@@ -68,6 +73,7 @@ export function CartProvider({
   const [isPending, startTransition] = useTransition();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const openDrawer = useCallback(() => setDrawerOpen(true), []);
   const closeDrawer = useCallback(() => setDrawerOpen(false), []);
@@ -115,6 +121,26 @@ export function CartProvider({
     [run],
   );
 
+  const changeCountry = useCallback(
+    (country: Country) =>
+      new Promise<void>((resolve, reject) => {
+        setError(null);
+        startTransition(async () => {
+          try {
+            const updated = await setCountryAction(country);
+            if (updated) setCart(updated);
+            // Server-rendered prices and shipping copy follow the new cookie.
+            router.refresh();
+            resolve();
+          } catch (err) {
+            setError((err as Error).message || 'Could not change country.');
+            reject(err);
+          }
+        });
+      }),
+    [router],
+  );
+
   return (
     <CartContext.Provider
       value={{
@@ -128,6 +154,7 @@ export function CartProvider({
         addItem,
         updateItem,
         removeItem,
+        changeCountry,
       }}
     >
       {children}

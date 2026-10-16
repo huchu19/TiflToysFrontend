@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- GraphQL responses are
    dynamic; nodes are typed as `any` at this fetch boundary and normalized into
    exported types by the map* helpers below. */
+import { DEFAULT_COUNTRY, type Country } from './country';
+
 const API_VERSION = '2026-04';
 
 /**
@@ -203,7 +205,7 @@ function mapProductNode(node: any): ShopifyProductCard {
     title: node.title,
     handle: node.handle,
     amount: node.priceRange?.minVariantPrice?.amount ?? '0',
-    currencyCode: node.priceRange?.minVariantPrice?.currencyCode ?? 'USD',
+    currencyCode: node.priceRange?.minVariantPrice?.currencyCode ?? 'CAD',
     image: mapImage(node.featuredImage),
     variantId: node.variants?.edges?.[0]?.node?.id ?? null,
     availableForSale: node.availableForSale ?? true,
@@ -229,32 +231,40 @@ const PRODUCT_CARD_FRAGMENT = `
 `;
 
 /** Products in a Shopify collection — used for the Featured Collection grid. */
-export async function getCollectionProducts(handle: string, first = 3): Promise<ShopifyProductCard[]> {
+export async function getCollectionProducts(
+  handle: string,
+  first = 3,
+  country: Country = DEFAULT_COUNTRY,
+): Promise<ShopifyProductCard[]> {
   const data = await shopifyFetch<any>(
-    `query CollectionProducts($handle: String!, $first: Int!) {
+    `query CollectionProducts($handle: String!, $first: Int!, $country: CountryCode)
+    @inContext(country: $country) {
       collection(handle: $handle) {
         products(first: $first) {
           edges { node { ${PRODUCT_CARD_FRAGMENT} } }
         }
       }
     }`,
-    { handle, first }
+    { handle, first, country }
   );
   const edges = data.collection?.products?.edges ?? [];
   return edges.map((e: any) => mapProductNode(e.node));
 }
 
 /** A single product with description + variant — used for hero / DIY / trust. */
-export async function getProductByHandle(handle: string): Promise<ShopifyProductDetail | null> {
+export async function getProductByHandle(
+  handle: string,
+  country: Country = DEFAULT_COUNTRY,
+): Promise<ShopifyProductDetail | null> {
   const data = await shopifyFetch<any>(
-    `query ProductByHandle($handle: String!) {
+    `query ProductByHandle($handle: String!, $country: CountryCode) @inContext(country: $country) {
       product(handle: $handle) {
         ${PRODUCT_CARD_FRAGMENT}
         description
         variants(first: 2) { edges { node { id availableForSale } } }
       }
     }`,
-    { handle }
+    { handle, country }
   );
   const node = data.product;
   if (!node) return null;
@@ -371,10 +381,15 @@ export async function getSaleEndsAt(): Promise<string | null> {
   return data.shop?.metafield?.value ?? null;
 }
 
-/** Format a Shopify money amount as a plain "$0.00" string (design style). */
-export function formatPrice(amount: string): string {
+/**
+ * Format a Shopify money amount as a plain "$0.00" string (design style).
+ * Canadian dollars are the home currency and stay bare; any other currency
+ * carries its code ("$17.99 USD") so it's never mistaken for CAD.
+ */
+export function formatPrice(amount: string, currencyCode = 'CAD'): string {
   const value = Number(amount);
-  return Number.isFinite(value) ? `$${value.toFixed(2)}` : '';
+  if (!Number.isFinite(value)) return '';
+  return currencyCode === 'CAD' ? `$${value.toFixed(2)}` : `$${value.toFixed(2)} ${currencyCode}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -431,15 +446,17 @@ function sortToArgs(
 export async function getAllProductCards(
   first = 50,
   sort?: ProductSort,
+  country: Country = DEFAULT_COUNTRY,
 ): Promise<ShopifyProductCard[]> {
   const { sortKey, reverse } = sortToArgs(sort, false);
   const data = await shopifyFetch<any>(
-    `query AllProducts($first: Int!, $sortKey: ProductSortKeys, $reverse: Boolean) {
+    `query AllProducts($first: Int!, $sortKey: ProductSortKeys, $reverse: Boolean, $country: CountryCode)
+    @inContext(country: $country) {
       products(first: $first, sortKey: $sortKey, reverse: $reverse) {
         edges { node { ${PRODUCT_CARD_FRAGMENT} } }
       }
     }`,
-    { first, sortKey, reverse }
+    { first, sortKey, reverse, country }
   );
   return (data.products?.edges ?? []).map((e: any) => mapProductNode(e.node));
 }
@@ -449,15 +466,17 @@ export async function searchProductCards(
   query: string,
   first = 50,
   sort?: ProductSort,
+  country: Country = DEFAULT_COUNTRY,
 ): Promise<ShopifyProductCard[]> {
   const { sortKey, reverse } = sortToArgs(sort, true);
   const data = await shopifyFetch<any>(
-    `query SearchProducts($q: String!, $first: Int!, $sortKey: ProductSortKeys, $reverse: Boolean) {
+    `query SearchProducts($q: String!, $first: Int!, $sortKey: ProductSortKeys, $reverse: Boolean, $country: CountryCode)
+    @inContext(country: $country) {
       products(first: $first, query: $q, sortKey: $sortKey, reverse: $reverse) {
         edges { node { ${PRODUCT_CARD_FRAGMENT} } }
       }
     }`,
-    { q: query, first, sortKey, reverse }
+    { q: query, first, sortKey, reverse, country }
   );
   return (data.products?.edges ?? []).map((e: any) => mapProductNode(e.node));
 }
@@ -491,9 +510,14 @@ export async function getCollections(first = 50): Promise<ShopifyCollectionSumma
 }
 
 /** A single collection with its products. Returns null if it doesn't exist. */
-export async function getCollectionPage(handle: string, first = 24): Promise<ShopifyCollection | null> {
+export async function getCollectionPage(
+  handle: string,
+  first = 24,
+  country: Country = DEFAULT_COUNTRY,
+): Promise<ShopifyCollection | null> {
   const data = await shopifyFetch<any>(
-    `query CollectionPage($handle: String!, $first: Int!) {
+    `query CollectionPage($handle: String!, $first: Int!, $country: CountryCode)
+    @inContext(country: $country) {
       collection(handle: $handle) {
         title
         handle
@@ -502,7 +526,7 @@ export async function getCollectionPage(handle: string, first = 24): Promise<Sho
         products(first: $first) { edges { node { ${PRODUCT_CARD_FRAGMENT} } } }
       }
     }`,
-    { handle, first }
+    { handle, first, country }
   );
   const c = data.collection;
   if (!c) return null;
@@ -516,9 +540,12 @@ export async function getCollectionPage(handle: string, first = 24): Promise<Sho
 }
 
 /** Full product detail (images + variants) for a product page. */
-export async function getProductPage(handle: string): Promise<ShopifyProductPage | null> {
+export async function getProductPage(
+  handle: string,
+  country: Country = DEFAULT_COUNTRY,
+): Promise<ShopifyProductPage | null> {
   const data = await shopifyFetchInventory<any>(
-    (inv) => `query ProductPage($handle: String!) {
+    (inv) => `query ProductPage($handle: String!, $country: CountryCode) @inContext(country: $country) {
       product(handle: $handle) {
         id
         title
@@ -541,7 +568,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
         }
       }
     }`,
-    { handle }
+    { handle, country }
   );
   const node = data.product;
   if (!node) return null;
@@ -552,7 +579,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
     description: node.description ?? '',
     descriptionHtml: node.descriptionHtml ?? '',
     amount: node.priceRange?.minVariantPrice?.amount ?? '0',
-    currencyCode: node.priceRange?.minVariantPrice?.currencyCode ?? 'USD',
+    currencyCode: node.priceRange?.minVariantPrice?.currencyCode ?? 'CAD',
     images: (node.images?.edges ?? [])
       .map((e: any) => mapImage(e.node))
       .filter((img: ShopifyImage): img is ShopifyImageData => img !== null),
@@ -561,7 +588,7 @@ export async function getProductPage(handle: string): Promise<ShopifyProductPage
       title: e.node.title,
       available: e.node.availableForSale,
       amount: e.node.price?.amount ?? '0',
-      currencyCode: e.node.price?.currencyCode ?? 'USD',
+      currencyCode: e.node.price?.currencyCode ?? 'CAD',
       quantityAvailable: e.node.quantityAvailable ?? null,
       currentlyNotInStock: e.node.currentlyNotInStock ?? false,
     })),

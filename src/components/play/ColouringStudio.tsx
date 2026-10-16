@@ -394,7 +394,7 @@ export function ColouringStudio({ variants }: { variants: ShopifyVariant[] | nul
                 ? 'Sold out'
                 : adding
                   ? 'Adding…'
-                  : `Buy this mat — ${formatPrice(variant.amount)}`}
+                  : `Buy this mat — ${formatPrice(variant.amount, variant.currencyCode)}`}
             </button>
           ) : (
             <Link

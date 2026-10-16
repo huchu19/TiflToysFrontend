@@ -112,7 +112,7 @@ export default function AddToCart({ variants }: { variants: ShopifyVariant[] }) 
             : added
               ? 'Added to cart'
               : selected
-                ? `Add to cart — ${formatPrice(selected.amount)}`
+                ? `Add to cart — ${formatPrice(selected.amount, selected.currencyCode)}`
                 : 'Add to cart'}
       </motion.button>
 

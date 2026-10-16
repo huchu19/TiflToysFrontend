@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Palette } from 'lucide-react';
 import { getMatProduct } from '@/lib/play';
+import { getCountry } from '@/lib/country-server';
 import { Reveal } from '@/components/motion/Reveal';
 import { ColouringStudio } from '@/components/play/ColouringStudio';
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ColouringPage() {
-  const product = await getMatProduct();
+  const product = await getMatProduct(await getCountry());
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-14 lg:px-8">

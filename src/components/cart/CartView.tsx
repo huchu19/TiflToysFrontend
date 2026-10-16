@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import FreeShippingNote from './FreeShippingNote';
+import { DEFAULT_COUNTRY } from '@/lib/country';
 
 export default function CartView() {
   const { cart, updateItem, removeItem, isPending, error } = useCart();
@@ -130,7 +131,10 @@ export default function CartView() {
           Taxes calculated at checkout · prices in {cart?.currencyCode}
         </p>
         <div className="mt-4">
-          <FreeShippingNote subtotal={cart?.subtotalAmount ?? 0} />
+          <FreeShippingNote
+            subtotal={cart?.subtotalAmount ?? 0}
+            country={cart?.country ?? DEFAULT_COUNTRY}
+          />
         </div>
         <a
           href={cart?.checkoutUrl}

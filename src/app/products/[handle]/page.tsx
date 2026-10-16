@@ -6,16 +6,8 @@ import { getAllProductCards, getProductPage, formatPrice } from '@/lib/shopify';
 import { PLAY_CONTENT } from '@/lib/play';
 import { getProductBottomline, getProductReviews } from '@/lib/judgeme';
 import ProductReviews, { RatingSummaryLink } from '@/components/reviews/ProductReviews';
-import {
-  SITE_URL,
-  SITE_NAME,
-  FREE_SHIPPING_THRESHOLD,
-  SHIPPING_FLAT_RATE,
-  SHIPPING_ZONES,
-  US_FREE_SHIPPING_THRESHOLD,
-  US_SHIPPING_FLAT_RATE,
-  shippingMoney,
-} from '@/lib/site';
+import { SITE_URL, SITE_NAME, SHIPPING, shippingMoney } from '@/lib/site';
+import { getCountry } from '@/lib/country-server';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
 
@@ -65,8 +57,10 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const product = await getProductPage(handle);
+  const country = await getCountry();
+  const product = await getProductPage(handle, country);
   if (!product) notFound();
+  const shipping = SHIPPING[country];
 
   const isMat = product.handle === PLAY_CONTENT.matProductHandle;
 
@@ -148,7 +142,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
           {rating && <RatingSummaryLink value={rating.value} count={rating.count} />}
 
           <p className="mt-4 font-fredoka text-3xl font-bold text-gray-800">
-            {formatPrice(product.amount)}
+            {formatPrice(product.amount, product.currencyCode)}
           </p>
 
           {product.descriptionHtml ? (
@@ -176,12 +170,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <Truck className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" aria-hidden />
             <p className="leading-relaxed">
               <span className="font-semibold text-brand-purple">
-                Free shipping on orders over {shippingMoney(FREE_SHIPPING_THRESHOLD)}
+                Free shipping on orders over {shippingMoney(shipping.freeThreshold, country)}
               </span>{' '}
-              — otherwise a flat {shippingMoney(SHIPPING_FLAT_RATE)} anywhere in Canada. US orders:
-              free over {shippingMoney(US_FREE_SHIPPING_THRESHOLD)} USD, otherwise{' '}
-              {shippingMoney(US_SHIPPING_FLAT_RATE)} USD.{' '}
-              {SHIPPING_ZONES.map((z) => `${z.region}: ${z.estimate}`).join(' · ')}.{' '}
+              — otherwise a flat {shippingMoney(shipping.flatRate, country)} {shipping.area}.{' '}
+              {shipping.zones.length > 0 &&
+                `${shipping.zones.map((z) => `${z.region}: ${z.estimate}`).join(' · ')}. `}
               <Link href="/refunds" className="font-medium text-brand-purple hover:underline">
                 Shipping policy
               </Link>

@@ -1,4 +1,5 @@
 import { getProductByHandle, getProductPage, type ShopifyVariant } from './shopify';
+import type { Country } from './country';
 
 // Which Shopify products power the /play experiences — same pattern as
 // HOMEPAGE_CONTENT in lib/homepage.ts. Editing a product in the Shopify admin
@@ -35,8 +36,8 @@ export const MAT_DESIGNS = [
 export type MatDesignId = (typeof MAT_DESIGNS)[number]['id'];
 
 /** Live mat product + variants, resolved via the existing getProductPage(). */
-export async function getMatProduct() {
-  return safe('mat product', () => getProductPage(PLAY_CONTENT.matProductHandle), null);
+export async function getMatProduct(country: Country) {
+  return safe('mat product', () => getProductPage(PLAY_CONTENT.matProductHandle, country), null);
 }
 
 /** Match a design id to its live Shopify variant, by variant title. Returns
@@ -52,6 +53,6 @@ export function resolveMatVariant(
 }
 
 /** Live Hajj board game product, for the /play/hajj journey's closing CTA. */
-export async function getHajjProduct() {
-  return safe('hajj product', () => getProductByHandle(PLAY_CONTENT.hajjProductHandle), null);
+export async function getHajjProduct(country: Country) {
+  return safe('hajj product', () => getProductByHandle(PLAY_CONTENT.hajjProductHandle, country), null);
 }

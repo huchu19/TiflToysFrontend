@@ -6,6 +6,7 @@ import { Star, Sparkle } from '@/components/ui/Doodles';
 import { Stagger } from '@/components/motion/Stagger';
 import { StickerSpot } from '@/components/play/StickerSpot';
 import ProductSort from './ProductSort';
+import { getCountry } from '@/lib/country-server';
 
 export const metadata: Metadata = {
   title: 'Products',
@@ -22,9 +23,10 @@ export default async function ProductsPage({
   const { q, sort: sortParam } = await searchParams;
   const query = q?.trim();
   const sort: Sort = VALID_SORTS.includes(sortParam as Sort) ? (sortParam as Sort) : 'featured';
+  const country = await getCountry();
   const products = query
-    ? await searchProductCards(query, 50, sort)
-    : await getAllProductCards(50, sort);
+    ? await searchProductCards(query, 50, sort, country)
+    : await getAllProductCards(50, sort, country);
 
   return (
     <main className="mx-auto max-w-7xl px-6 py-16 lg:px-8">

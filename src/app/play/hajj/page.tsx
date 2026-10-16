@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Compass } from 'lucide-react';
 import { getHajjProduct } from '@/lib/play';
+import { getCountry } from '@/lib/country-server';
 import { Reveal } from '@/components/motion/Reveal';
 import { HajjJourney } from '@/components/play/HajjJourney';
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HajjPage() {
-  const product = await getHajjProduct();
+  const product = await getHajjProduct(await getCountry());
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14 lg:px-8">

@@ -4,10 +4,11 @@ import { Star, Curl, Arc, Sparkle } from '@/components/ui/Doodles';
 import { Media } from '@/components/ui/Media';
 import { Float } from '@/components/motion/Float';
 import { StickerSpot } from '@/components/play/StickerSpot';
-import { FREE_SHIPPING_THRESHOLD, US_FREE_SHIPPING_THRESHOLD, shippingMoney } from '@/lib/site';
+import { SHIPPING, shippingMoney } from '@/lib/site';
+import { COUNTRIES, type Country } from '@/lib/country';
 import type { ShopifyImage } from '@/lib/shopify';
 
-export default function Hero({ image }: { image?: ShopifyImage }) {
+export default function Hero({ image, country }: { image?: ShopifyImage; country: Country }) {
   return (
     <section className="relative mx-auto max-w-7xl px-6 pb-12 pt-4 lg:px-8">
       <div className="grid items-center gap-10 lg:grid-cols-2">
@@ -39,8 +40,8 @@ export default function Hero({ image }: { image?: ShopifyImage }) {
 
           <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-brand-green">
             <Truck className="h-4 w-4" aria-hidden />
-            Free shipping on orders over {shippingMoney(FREE_SHIPPING_THRESHOLD)} in Canada,{' '}
-            {shippingMoney(US_FREE_SHIPPING_THRESHOLD)} USD in the US
+            Free shipping across {country === 'US' ? 'the US' : COUNTRIES[country].name} on orders
+            over {shippingMoney(SHIPPING[country].freeThreshold, country)}
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
