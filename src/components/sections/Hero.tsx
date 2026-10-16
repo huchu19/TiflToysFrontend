@@ -4,7 +4,7 @@ import { Star, Curl, Arc, Sparkle } from '@/components/ui/Doodles';
 import { Media } from '@/components/ui/Media';
 import { Float } from '@/components/motion/Float';
 import { StickerSpot } from '@/components/play/StickerSpot';
-import { FREE_SHIPPING_THRESHOLD } from '@/lib/site';
+import { FREE_SHIPPING_THRESHOLD, US_FREE_SHIPPING_THRESHOLD, shippingMoney } from '@/lib/site';
 import type { ShopifyImage } from '@/lib/shopify';
 
 export default function Hero({ image }: { image?: ShopifyImage }) {
@@ -39,7 +39,8 @@ export default function Hero({ image }: { image?: ShopifyImage }) {
 
           <div className="mt-3 flex items-center gap-2 text-sm font-semibold text-brand-green">
             <Truck className="h-4 w-4" aria-hidden />
-            Free shipping across Canada on orders over ${FREE_SHIPPING_THRESHOLD}
+            Free shipping on orders over {shippingMoney(FREE_SHIPPING_THRESHOLD)} in Canada,{' '}
+            {shippingMoney(US_FREE_SHIPPING_THRESHOLD)} USD in the US
           </div>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">

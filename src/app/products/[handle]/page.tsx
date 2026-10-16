@@ -12,6 +12,9 @@ import {
   FREE_SHIPPING_THRESHOLD,
   SHIPPING_FLAT_RATE,
   SHIPPING_ZONES,
+  US_FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FLAT_RATE,
+  shippingMoney,
 } from '@/lib/site';
 import ProductGallery from './ProductGallery';
 import AddToCart from './AddToCart';
@@ -173,9 +176,11 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
             <Truck className="mt-0.5 h-5 w-5 shrink-0 text-brand-green" aria-hidden />
             <p className="leading-relaxed">
               <span className="font-semibold text-brand-purple">
-                Free shipping on orders over ${FREE_SHIPPING_THRESHOLD}
+                Free shipping on orders over {shippingMoney(FREE_SHIPPING_THRESHOLD)}
               </span>{' '}
-              — otherwise a flat ${SHIPPING_FLAT_RATE} anywhere in Canada.{' '}
+              — otherwise a flat {shippingMoney(SHIPPING_FLAT_RATE)} anywhere in Canada. US orders:
+              free over {shippingMoney(US_FREE_SHIPPING_THRESHOLD)} USD, otherwise{' '}
+              {shippingMoney(US_SHIPPING_FLAT_RATE)} USD.{' '}
               {SHIPPING_ZONES.map((z) => `${z.region}: ${z.estimate}`).join(' · ')}.{' '}
               <Link href="/refunds" className="font-medium text-brand-purple hover:underline">
                 Shipping policy

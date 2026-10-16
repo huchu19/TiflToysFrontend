@@ -1,6 +1,13 @@
 import { Truck, PackageCheck, MapPin } from 'lucide-react';
 import { Stagger } from '@/components/motion/Stagger';
-import { FREE_SHIPPING_THRESHOLD, SHIPPING_FLAT_RATE, SHIPPING_ZONES } from '@/lib/site';
+import {
+  FREE_SHIPPING_THRESHOLD,
+  SHIPPING_FLAT_RATE,
+  SHIPPING_ZONES,
+  US_FREE_SHIPPING_THRESHOLD,
+  US_SHIPPING_FLAT_RATE,
+  shippingMoney,
+} from '@/lib/site';
 
 // Free-shipping / flat-rate terms as real text (the TrustShowcase banner above
 // has its trust bar baked into the image, so it can't carry live copy). Values
@@ -8,8 +15,8 @@ import { FREE_SHIPPING_THRESHOLD, SHIPPING_FLAT_RATE, SHIPPING_ZONES } from '@/l
 const ITEMS = [
   {
     Icon: Truck,
-    title: `Free shipping over $${FREE_SHIPPING_THRESHOLD}`,
-    body: `Orders under $${FREE_SHIPPING_THRESHOLD} ship for a flat $${SHIPPING_FLAT_RATE} — anywhere in Canada.`,
+    title: `Free shipping over ${shippingMoney(FREE_SHIPPING_THRESHOLD)}`,
+    body: `Orders under ${shippingMoney(FREE_SHIPPING_THRESHOLD)} ship for a flat ${shippingMoney(SHIPPING_FLAT_RATE)} anywhere in Canada. US orders ship free over ${shippingMoney(US_FREE_SHIPPING_THRESHOLD)} USD, otherwise ${shippingMoney(US_SHIPPING_FLAT_RATE)} USD.`,
     tone: 'text-brand-green',
   },
   {

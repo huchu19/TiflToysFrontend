@@ -9,7 +9,7 @@ It's a **headless Shopify** store. This Next.js app renders the catalogue, colle
 - **Catalogue**: product listing with search (`/products?q=`) and sort (`?sort=featured|newest|price-asc|price-desc`), collection pages, and product pages with variant selection and a gallery.
 - **Shopify cart**: the Shopify cart is the source of truth. It's created and updated through Server Actions, identified by an httpOnly cookie, and shown in a slide-out drawer and on `/cart`. The Checkout button goes to Shopify's hosted `checkoutUrl`.
 - **Stock awareness**: Sold-out badges and disabled add-to-cart come from `availableForSale`. "Only N left" messages and quantity caps come from `quantityAvailable` (see [Inventory scope](#inventory-scope)).
-- **Shipping nudges**: a $3 flat rate, free over $30, with a "you're $X away from free shipping" note in the cart.
+- **Shipping nudges**: a $4.50 flat rate in Canada (free over $40 CAD) and $10 USD to the US (free over $30 USD), with a "you're $X away from free shipping" note in the cart.
 - **`/play` experiences**: a colouring studio for the real prayer mat designs (with add-to-cart for the matching variant), a scroll-through Hajj journey, and a hidden-sticker hunt across the site that saves progress in `localStorage`.
 - **Forms**: contact and newsletter forms are Server Actions with validation and a honeypot. They're delivered by email through Web3Forms or Resend.
 - **SEO**: `sitemap.xml`, `robots.txt`, Open Graph/Twitter metadata, canonical URLs, JSON-LD `Product` data on product pages, and a web manifest.

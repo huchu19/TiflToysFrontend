@@ -12,17 +12,26 @@ export const SITE_DESCRIPTION =
 // Shipping. These MUST stay in sync with the Shopify shipping zones (Settings →
 // Shipping and delivery → General profile), which is what actually charges at
 // checkout: the "Ontario & Quebec" and "Rest of Canada" zones each carry a
-// $3.00 Standard rate (subtotal ≤ $29.99) and a $0.00 Free rate (subtotal ≥ $30).
-export const FREE_SHIPPING_THRESHOLD = 30;
-export const SHIPPING_FLAT_RATE = 3;
-/** Delivery estimates by destination — matches the two Shopify zones. */
+// $4.50 Standard rate and a $0.00 Free rate (subtotal ≥ $40 CAD); the
+// "US - Cross Border" zone carries a $10 USD rate, free at ≥ $30 USD.
+// The cart is priced in CAD, so the cart nudge uses the Canadian threshold.
+export const FREE_SHIPPING_THRESHOLD = 40;
+export const SHIPPING_FLAT_RATE = 4.5;
+export const US_FREE_SHIPPING_THRESHOLD = 30;
+export const US_SHIPPING_FLAT_RATE = 10;
+/** Delivery estimates by destination — matches the two Canadian Shopify zones. */
 export const SHIPPING_ZONES = [
   { region: 'Ontario & Quebec', estimate: '2–3 business days' },
   { region: 'Rest of Canada', estimate: '7–10 business days' },
 ] as const;
 
+/** Shipping money for copy: whole dollars stay short ("$40"), cents show ("$4.50"). */
+export function shippingMoney(amount: number): string {
+  return Number.isInteger(amount) ? `$${amount}` : `$${amount.toFixed(2)}`;
+}
+
 /** One-line summary used in the trust strip, cart and product pages. */
-export const SHIPPING_SUMMARY = `Free shipping on orders over $${FREE_SHIPPING_THRESHOLD} · $${SHIPPING_FLAT_RATE} flat rate Canada-wide`;
+export const SHIPPING_SUMMARY = `Free shipping on orders over ${shippingMoney(FREE_SHIPPING_THRESHOLD)} · ${shippingMoney(SHIPPING_FLAT_RATE)} flat rate Canada-wide`;
 
 /**
  * Free-shipping nudge for a cart subtotal: how much more to spend, or a
