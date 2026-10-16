@@ -1,7 +1,7 @@
 import { BadgeCheck, MessageCircleHeart } from 'lucide-react';
 import { Stars } from '@/components/ui/Stars';
 import { SITE_NAME } from '@/lib/site';
-import type { LooxBottomline, LooxReview } from '@/lib/loox';
+import type { Review, ReviewBottomline } from '@/lib/judgeme';
 import { ReviewsExpander } from './ReviewsExpander';
 
 const STAR_KEYS = [5, 4, 3, 2, 1] as const;
@@ -13,7 +13,7 @@ function formatReviewDate(iso: string): string {
 }
 
 /** Average + per-star breakdown, styled as a sticker card. */
-function Summary({ bottomline }: { bottomline: LooxBottomline }) {
+function Summary({ bottomline }: { bottomline: ReviewBottomline }) {
   const { totalReviews, averageRating, ratingDistribution } = bottomline;
   return (
     <div
@@ -48,7 +48,7 @@ function Summary({ bottomline }: { bottomline: LooxBottomline }) {
   );
 }
 
-function ReviewMedia({ media }: { media: LooxReview['media'] }) {
+function ReviewMedia({ media }: { media: Review['media'] }) {
   if (media.length === 0) return null;
   return (
     <div className="mt-4 flex flex-wrap gap-2">
@@ -72,7 +72,7 @@ function ReviewMedia({ media }: { media: LooxReview['media'] }) {
             className="block overflow-hidden rounded-xl"
             aria-label="Open customer photo"
           >
-            {/* Plain <img>: Loox serves media from its own CDN hosts, which
+            {/* Plain <img>: Judge.me serves photos from its own CDN hosts, which
                 aren't (and needn't be) in next/image's remotePatterns. */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -88,7 +88,7 @@ function ReviewMedia({ media }: { media: LooxReview['media'] }) {
   );
 }
 
-function ReviewCard({ review }: { review: LooxReview }) {
+function ReviewCard({ review }: { review: Review }) {
   const date = formatReviewDate(review.date);
   return (
     <article className="flex h-full flex-col rounded-2xl border-2 border-bg-cream bg-white px-5 py-6">
@@ -111,6 +111,7 @@ function ReviewCard({ review }: { review: LooxReview }) {
           </span>
         )}
       </p>
+      {review.title && <p className="mt-2 font-semibold text-ink-700">{review.title}</p>}
       {review.body && <p className="mt-2 whitespace-pre-line leading-relaxed text-ink-700">{review.body}</p>}
       <ReviewMedia media={review.media} />
       {review.reply && (
@@ -124,15 +125,15 @@ function ReviewCard({ review }: { review: LooxReview }) {
 }
 
 /**
- * Product-page reviews from Loox. Rendered on the server, so new reviews appear
+ * Product-page reviews from Judge.me. Rendered on the server, so new reviews appear
  * automatically (within the ISR window) and are crawlable.
  */
 export default function ProductReviews({
   bottomline,
   reviews,
 }: {
-  bottomline: LooxBottomline;
-  reviews: LooxReview[];
+  bottomline: ReviewBottomline;
+  reviews: Review[];
 }) {
 
   return (

@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft, Truck, Palette } from 'lucide-react';
 import { getAllProductCards, getProductPage, formatPrice } from '@/lib/shopify';
 import { PLAY_CONTENT } from '@/lib/play';
-import { getProductBottomline, getProductReviews } from '@/lib/loox';
+import { getProductBottomline, getProductReviews } from '@/lib/judgeme';
 import ProductReviews, { RatingSummaryLink } from '@/components/reviews/ProductReviews';
 import {
   SITE_URL,
@@ -70,8 +70,8 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
 
   const isMat = product.handle === PLAY_CONTENT.matProductHandle;
 
-  // Loox reviews (fail soft to null / []). The Shopify `reviews.*` metafields
-  // that Loox syncs are the fallback for the star line when Loox isn't set up.
+  // Judge.me reviews (fail soft to null / []). The Shopify `reviews.*` metafields
+  // that Judge.me syncs are the fallback for the star line when it isn't set up.
   const [bottomline, reviews] = await Promise.all([
     getProductBottomline(product.id),
     getProductReviews(product.id),
@@ -190,7 +190,7 @@ export default async function ProductPage({ params }: { params: Promise<{ handle
         </div>
       </div>
 
-      {/* Only once Loox has answered — never claim "no reviews" on a failed call. */}
+      {/* Only once Judge.me has answered — never claim "no reviews" on a failed call. */}
       {bottomline && <ProductReviews bottomline={bottomline} reviews={reviews} />}
     </main>
   );

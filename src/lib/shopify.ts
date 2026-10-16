@@ -151,8 +151,8 @@ export type ShopifyProductCard = {
 
 /**
  * Average star rating + review count, read from Shopify's standard
- * `reviews.rating` / `reviews.rating_count` product metafields. Loox keeps
- * these in sync automatically, so cards get stars without a Loox API call.
+ * `reviews.rating` / `reviews.rating_count` product metafields. Judge.me keeps
+ * these in sync automatically, so cards get stars without a Judge.me API call.
  */
 export type ShopifyRating = {
   /** Average rating on a 5-point scale, e.g. 4.7. */

@@ -52,19 +52,22 @@ token should be exposed to the browser once the cart refactor lands.
 - `SHOPIFY_STORE_DOMAIN` — e.g. `xgmq1a-uw.myshopify.com` (the `.myshopify.com` domain, not the
   custom domain).
 - `SHOPIFY_STOREFRONT_TOKEN` — Storefront API access token.
-- `LOOX_PUBLIC_STORE_ID` — Loox Storefront API store ID (optional; see Reviews below).
+- `JUDGEME_API_TOKEN` — Judge.me *private* API token (optional, server-only; see Reviews below).
 
-## Reviews (Loox)
-Reviews are collected by the **Loox** Shopify app and shown automatically — no per-review admin work.
+## Reviews (Judge.me)
+Reviews are collected by the **Judge.me** Shopify app and shown automatically — no per-review admin work.
+The storefront is headless, so Judge.me's *theme* widgets never appear on tifltoys.com; we render
+reviews ourselves from its API.
 - **Stars on product cards** come from Shopify's standard `reviews.rating` / `reviews.rating_count`
-  product metafields (Loox keeps them in sync) via `RATING_FRAGMENT` in `src/lib/shopify.ts`.
-- **Full reviews** (text, photos/videos, merchant replies, per-star breakdown) on
-  `/products/[handle]` and the homepage "happy customers" section come from the **Loox Storefront
-  API** in `src/lib/loox.ts`, server-rendered and ISR-cached (5 min) so they're crawlable and in the
-  product JSON-LD (`aggregateRating` + `review`). The homepage shows Loox "featured" 4–5★ reviews
-  (pin a review in Loox to feature it), falling back to the `testimonial` metaobjects.
-- Loox reads fail soft: without `LOOX_PUBLIC_STORE_ID`, or if Loox errors, the reviews section is
-  hidden and the metafield stars + metaobject testimonials still render.
+  product metafields (Judge.me keeps them in sync) via `RATING_FRAGMENT` in `src/lib/shopify.ts`.
+- **Full reviews** (text, photos, per-star breakdown) on `/products/[handle]` and the homepage
+  "happy customers" section come from the **Judge.me REST API** in `src/lib/judgeme.ts` (private
+  token, server-only), server-rendered and ISR-cached (5 min) so they're crawlable and in the
+  product JSON-LD (`aggregateRating` + `review`). Only published reviews (`curated: "ok"`, not
+  archived) are shown. The homepage shows 4–5★ written reviews, pinned first (pin a review in
+  Judge.me to feature it), falling back to the `testimonial` metaobjects.
+- Judge.me reads fail soft: without `JUDGEME_API_TOKEN`, or if Judge.me errors, the reviews section
+  is hidden and the metafield stars + metaobject testimonials still render.
 
 ## Conventions
 - **Server Components by default**; add `'use client'` only for interactivity (cart UI, forms,

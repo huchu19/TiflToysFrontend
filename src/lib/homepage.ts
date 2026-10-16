@@ -10,7 +10,7 @@ import {
   type ShopifyProductDetail,
   type ShopifyArticle,
 } from './shopify';
-import { getFeaturedReviews } from './loox';
+import { getFeaturedReviews } from './judgeme';
 
 // Which Shopify resources feed each part of the homepage. Editing a product /
 // collection / blog in the Shopify admin updates the site with no code change;
@@ -41,7 +41,7 @@ export type HomepageContent = {
   heroImage: ShopifyImage;
   diy: ShopifyProductDetail | null;
   articles: ShopifyArticle[];
-  /** Live Loox reviews when available, else the hand-picked testimonial metaobjects. */
+  /** Live Judge.me reviews when available, else the hand-picked testimonial metaobjects. */
   testimonials: HomepageTestimonial[];
   /** ISO end time for the promo-bar sale, or null when no sale is configured. */
   saleEndsAt: string | null;
@@ -65,13 +65,13 @@ export async function getHomepageContent(): Promise<HomepageContent> {
     safe('hero image', () => getHeroImage(), null),
     safe('DIY product', () => getProductByHandle(HOMEPAGE_CONTENT.diyProduct), null),
     safe('blog articles', () => getBlogArticles(HOMEPAGE_CONTENT.blog, 3), []),
-    safe('Loox reviews', () => getFeaturedReviews(4), []),
+    safe('Judge.me reviews', () => getFeaturedReviews(4), []),
     safe('testimonials', () => getTestimonials(), []),
     safe('sale end date', () => getSaleEndsAt(), null),
   ]);
 
   // Real customer reviews win; the curated metaobject testimonials are the
-  // fallback (Loox not configured / unreachable / no 4–5★ written reviews yet).
+  // fallback (Judge.me not configured / unreachable / no 4–5★ written reviews yet).
   const cards: HomepageTestimonial[] = reviews.length
     ? reviews.map((r) => ({
         id: r.id,
