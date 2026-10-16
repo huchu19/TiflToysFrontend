@@ -47,156 +47,38 @@ export default function Navbar({ country }: { country: Country }) {
   }
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-white/90 backdrop-blur-sm">
-      <nav
-        className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-[padding] duration-300 lg:px-8 ${
-          scrolled ? 'py-2.5' : 'py-5'
-        }`}
-      >
-        {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center" aria-label="TiflToys home">
-          <Image
-            src="/logo.svg"
-            alt="TiflToys"
-            width={120}
-            height={56}
-            priority
-            className={`w-auto transition-[height] duration-300 ${scrolled ? 'h-16' : 'h-28'}`}
-          />
-        </Link>
-
-        {/* Desktop nav links */}
-        <ul className="hidden items-center gap-5 md:flex lg:gap-8">
-          {NAV_LINKS.map((link, i) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`whitespace-nowrap font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
-                  i === 0 ? 'text-brand-purple' : 'text-gray-700'
-                }`}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right-side icon group */}
-        <div className="flex items-center gap-3.5 lg:gap-5">
-          {/* Sticker-hunt progress — links to the keepsake collection page. */}
-          {total > 0 && (
-            <Link
-              href="/play/stickers"
-              aria-label={`Sticker hunt progress, ${foundCount} of ${total} found`}
-              className="hidden items-center gap-1.5 rounded-full bg-bg-yellow px-3 py-1.5 font-fredoka text-xs font-bold text-brand-orange transition-transform hover:scale-105 sm:flex"
-            >
-              <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-              {foundCount}/{total}
-            </Link>
-          )}
-
-          <CountrySwitcher country={country} />
-
-          <button
-            type="button"
-            aria-label="Search"
-            aria-expanded={searchOpen}
-            onClick={() => setSearchOpen((open) => !open)}
-            className="text-gray-800 transition-colors hover:text-brand-purple"
-          >
-            <Search className="h-6 w-6" strokeWidth={1.5} />
-          </button>
-
-          {/* Accounts are deferred to post-launch — shown as "coming soon".
-              Hidden at tablet width, where the nav links need the room. */}
-          <button
-            type="button"
-            aria-label="Accounts (coming soon)"
-            title="Accounts coming soon"
-            disabled
-            className="hidden cursor-not-allowed text-gray-300 sm:block md:hidden lg:block"
-          >
-            <User className="h-6 w-6" strokeWidth={1.5} />
-          </button>
-
-          {/* Cart — opens the cart drawer */}
-          <button
-            type="button"
-            onClick={openDrawer}
-            aria-label={`Cart, ${itemCount} item${itemCount === 1 ? '' : 's'}`}
-            className="relative text-gray-800 transition-colors hover:text-brand-purple"
-          >
-            <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
-            <AnimatePresence>
-              {itemCount > 0 && (
-                <motion.span
-                  key={itemCount}
-                  initial={{ scale: 0.4, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  exit={{ scale: 0.4, opacity: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 20 }}
-                  className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-orange px-1 text-xs font-bold text-white"
-                >
-                  {itemCount}
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </button>
-
-          {/* Mobile menu toggle */}
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={menuOpen}
-            className="text-gray-800 transition-colors hover:text-brand-purple md:hidden"
-          >
-            {menuOpen ? (
-              <X className="h-6 w-6" strokeWidth={1.5} />
-            ) : (
-              <Menu className="h-6 w-6" strokeWidth={1.5} />
-            )}
-          </button>
-        </div>
-      </nav>
-
-      {/* Expandable search bar */}
-      {searchOpen && (
-        <div className="border-t border-gray-100">
-          <form
-            onSubmit={submitSearch}
-            className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-3 lg:px-8"
-          >
-            <Search className="h-5 w-5 shrink-0 text-gray-400" strokeWidth={1.5} />
-            <input
-              autoFocus
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search toys, games, crafts…"
-              aria-label="Search products"
-              className="w-full bg-transparent py-1 text-sm outline-none placeholder:text-gray-400"
+    <>
+      {/* The header is fixed (out of flow) with a spacer reserving its expanded
+          height, so shrinking it never shifts the page. When it was sticky, the
+          shrink pulled content up, the browser's scroll anchoring pulled scrollY
+          back under the threshold, and the logo bounced between sizes.
+          h-38 = expanded nav height: py-5 (2×20px) + h-28 logo (112px). */}
+      <div aria-hidden className="h-38" />
+      <header className="fixed inset-x-0 top-0 z-40 w-full bg-white/90 backdrop-blur-sm">
+        <nav
+          className={`mx-auto flex max-w-7xl items-center justify-between px-6 transition-[padding] duration-300 lg:px-8 ${
+            scrolled ? 'py-2.5' : 'py-5'
+          }`}
+        >
+          {/* Logo */}
+          <Link href="/" className="flex shrink-0 items-center" aria-label="TiflToys home">
+            <Image
+              src="/logo.svg"
+              alt="TiflToys"
+              width={120}
+              height={56}
+              priority
+              className={`w-auto transition-[height] duration-300 ${scrolled ? 'h-16' : 'h-28'}`}
             />
-            <button
-              type="submit"
-              className="shrink-0 rounded-full bg-brand-purple px-5 py-2 font-fredoka text-xs font-semibold tracking-wide text-white"
-            >
-              Search
-            </button>
-          </form>
-        </div>
-      )}
+          </Link>
 
-      {/* Mobile dropdown menu */}
-      {menuOpen && (
-        <div className="border-t border-gray-100 md:hidden">
-          <ul className="flex flex-col gap-1 px-6 py-4">
+          {/* Desktop nav links */}
+          <ul className="hidden items-center gap-5 md:flex lg:gap-8">
             {NAV_LINKS.map((link, i) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className={`block py-2 font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
+                  className={`whitespace-nowrap font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
                     i === 0 ? 'text-brand-purple' : 'text-gray-700'
                   }`}
                 >
@@ -205,8 +87,134 @@ export default function Navbar({ country }: { country: Country }) {
               </li>
             ))}
           </ul>
-        </div>
-      )}
-    </header>
+
+          {/* Right-side icon group */}
+          <div className="flex items-center gap-3.5 lg:gap-5">
+            {/* Sticker-hunt progress — links to the keepsake collection page. */}
+            {total > 0 && (
+              <Link
+                href="/play/stickers"
+                aria-label={`Sticker hunt progress, ${foundCount} of ${total} found`}
+                className="hidden items-center gap-1.5 rounded-full bg-bg-yellow px-3 py-1.5 font-fredoka text-xs font-bold text-brand-orange transition-transform hover:scale-105 sm:flex"
+              >
+                <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                {foundCount}/{total}
+              </Link>
+            )}
+
+            <CountrySwitcher country={country} />
+
+            <button
+              type="button"
+              aria-label="Search"
+              aria-expanded={searchOpen}
+              onClick={() => setSearchOpen((open) => !open)}
+              className="text-gray-800 transition-colors hover:text-brand-purple"
+            >
+              <Search className="h-6 w-6" strokeWidth={1.5} />
+            </button>
+
+            {/* Accounts are deferred to post-launch — shown as "coming soon".
+                Hidden at tablet width, where the nav links need the room. */}
+            <button
+              type="button"
+              aria-label="Accounts (coming soon)"
+              title="Accounts coming soon"
+              disabled
+              className="hidden cursor-not-allowed text-gray-300 sm:block md:hidden lg:block"
+            >
+              <User className="h-6 w-6" strokeWidth={1.5} />
+            </button>
+
+            {/* Cart — opens the cart drawer */}
+            <button
+              type="button"
+              onClick={openDrawer}
+              aria-label={`Cart, ${itemCount} item${itemCount === 1 ? '' : 's'}`}
+              className="relative text-gray-800 transition-colors hover:text-brand-purple"
+            >
+              <ShoppingBag className="h-6 w-6" strokeWidth={1.5} />
+              <AnimatePresence>
+                {itemCount > 0 && (
+                  <motion.span
+                    key={itemCount}
+                    initial={{ scale: 0.4, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.4, opacity: 0 }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 20 }}
+                    className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-orange px-1 text-xs font-bold text-white"
+                  >
+                    {itemCount}
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </button>
+
+            {/* Mobile menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMenuOpen((open) => !open)}
+              aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={menuOpen}
+              className="text-gray-800 transition-colors hover:text-brand-purple md:hidden"
+            >
+              {menuOpen ? (
+                <X className="h-6 w-6" strokeWidth={1.5} />
+              ) : (
+                <Menu className="h-6 w-6" strokeWidth={1.5} />
+              )}
+            </button>
+          </div>
+        </nav>
+
+        {/* Expandable search bar */}
+        {searchOpen && (
+          <div className="border-t border-gray-100">
+            <form
+              onSubmit={submitSearch}
+              className="mx-auto flex max-w-7xl items-center gap-3 px-6 py-3 lg:px-8"
+            >
+              <Search className="h-5 w-5 shrink-0 text-gray-400" strokeWidth={1.5} />
+              <input
+                autoFocus
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search toys, games, crafts…"
+                aria-label="Search products"
+                className="w-full bg-transparent py-1 text-sm outline-none placeholder:text-gray-400"
+              />
+              <button
+                type="submit"
+                className="shrink-0 rounded-full bg-brand-purple px-5 py-2 font-fredoka text-xs font-semibold tracking-wide text-white"
+              >
+                Search
+              </button>
+            </form>
+          </div>
+        )}
+
+        {/* Mobile dropdown menu */}
+        {menuOpen && (
+          <div className="border-t border-gray-100 md:hidden">
+            <ul className="flex flex-col gap-1 px-6 py-4">
+              {NAV_LINKS.map((link, i) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    onClick={() => setMenuOpen(false)}
+                    className={`block py-2 font-fredoka text-sm font-semibold tracking-wide transition-colors hover:text-brand-purple ${
+                      i === 0 ? 'text-brand-purple' : 'text-gray-700'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </header>
+    </>
   );
 }
