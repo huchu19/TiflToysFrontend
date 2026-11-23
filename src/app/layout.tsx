@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import './globals.css';
 import { CartProvider } from '@/context/CartContext';
 import { StickerProvider } from '@/context/StickerContext';
@@ -9,6 +10,9 @@ import CartDrawer from '@/components/cart/CartDrawer';
 import { PageTransition } from '@/components/motion/PageTransition';
 import { SITE_URL, SITE_NAME, SITE_DESCRIPTION } from '@/lib/site';
 import { getCountry } from '@/lib/country-server';
+
+// Klaviyo public API key (site ID). Safe to expose; unset = Klaviyo not loaded.
+const KLAVIYO_COMPANY_ID = process.env.NEXT_PUBLIC_KLAVIYO_COMPANY_ID?.trim();
 
 const DEFAULT_TITLE = `${SITE_NAME} — Meaningful toys for curious minds`;
 
@@ -60,6 +64,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <CartDrawer />
           </CartProvider>
         </StickerProvider>
+        {/* Klaviyo onsite script: displays published sign-up forms (Welcome Pop-up). */}
+        {KLAVIYO_COMPANY_ID && (
+          <Script
+            id="klaviyo-onsite"
+            src={`https://static.klaviyo.com/onsite/js/${encodeURIComponent(KLAVIYO_COMPANY_ID)}/klaviyo.js`}
+            strategy="afterInteractive"
+          />
+        )}
       </body>
     </html>
   );
